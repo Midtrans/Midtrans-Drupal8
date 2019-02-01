@@ -1,0 +1,10 @@
+commerce_payment_midtrans.notify:
+  path: '/payment/notify/midtrans'
+  defaults:
+    _controller: '\Drupal\commerce_payment\Controller\PaymentNotificationController::notifyPage'
+  requirements:
+    _access: 'TRUE'
+  options:
+    parameters:
+      commerce_payment_gateway:
+        type: entity:commerce_payment_gateway

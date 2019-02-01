@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * Implements hook_requirements().
+ */
+function commerce_midtrans_requirements($phase) {
+  $requirements = [];
+  if ($phase == 'install') {
+    if (!class_exists('\Veritrans_Snap')) {
+      $requirements['commerce_midtrans_library'] = [
+        'description' => t('Commerce midtrans requires the veritrans/Veritrans_Snap library.'),
+        'severity' => REQUIREMENT_ERROR,
+      ];
+    }
+  }
+
+  return $requirements;
+}

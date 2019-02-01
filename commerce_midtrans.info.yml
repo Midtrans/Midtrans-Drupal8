@@ -1,0 +1,11 @@
+name: Commerce Midtrans
+type: module
+description: 'Provides Commerce integration for Midtrans Payments.'
+package: Commerce (contrib)
+dependencies:
+  - commerce:commerce_payment
+# Information added by Drupal.org packaging script on 2017-12-07
+version: '8.x-1.2'
+core: '8.x'
+project: 'commerce_midtrans'
+datestamp: 1543190400
