@@ -1,0 +1,19 @@
+{
+    "name": "drupal/commerce_midtrans",
+    "type": "drupal-module",
+    "description": "Provides Commerce integration for Midtrans Payments.",
+    "require": {
+   		"veritrans/veritrans-php": "dev-master"
+    }//,
+ //    "extra": {
+ //  		"merge-plugin": {    
+ //  			"require": [
+ //      			"docroot/modules/custom/example/composer.json"
+ //    		]
+ //    		"include": [
+ //      			"docroot/modules/custom/*/composer.json"
+ //    		],
+ //    	"recurse": true
+ //  		}
+	// }
+}
