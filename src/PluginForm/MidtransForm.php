@@ -89,14 +89,19 @@ class MidtransForm extends BasePaymentOffsiteForm {
           $params['custom_field2'] = !empty($custom_fields_params[1]) ? $custom_fields_params[1] : null;
           $params['custom_field3'] = !empty($custom_fields_params[2]) ? $custom_fields_params[2] : null;
       };
-    error_log(print_r($params, TRUE)); //debugan      
+    //error_log(print_r($params, TRUE)); //debugan    
+    
+    // set remote id for payment
     $order_id = $order->id();
-    $payment->setRemoteId( $order_id );
-    $payment->save();    
- 
+    $payments = \Drupal::entityTypeManager() ->getStorage('commerce_payment') ->loadByProperties([ 'order_id' => [$order_id], ]);
+    if (!$payments){
+      $payment->setRemoteId($order_id);
+      $payment->save();   
+    }   
+
     if (!$configuration['enable_redirect']){
       $snapToken = \Veritrans_Snap::getSnapToken($params); 
-      error_log($snapToken);
+      // error_log($snapToken); //debugan
 
       try {
       // Redirect to Midtrans SNAP PopUp page.

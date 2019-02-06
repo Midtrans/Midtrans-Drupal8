@@ -152,7 +152,7 @@ class Midtrans extends OffsitePaymentGatewayBase {
     /** @var \Drupal\commerce_order\Entity\Order $order */
     //$order = $payment->getOrder();
     
-    error_log('Response from Midtrans : '. print_r($response, TRUE)); //debugan  
+    //error_log('Response from Midtrans : '. print_r($response, TRUE)); //debugan  
     $payment = $this->loadPaymentByOrderId($response->order_id);
 
     if ($response->transaction_status == 'capture'){

@@ -105,9 +105,14 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
       };
 
     //error_log('amount '. print_r($params, TRUE)); //debugan      
+
+    // set remote id for payment
     $order_id = $order->id();
-    $payment->setRemoteId( $order_id );
-    $payment->save();    
+    $payments = \Drupal::entityTypeManager() ->getStorage('commerce_payment') ->loadByProperties([ 'order_id' => [$order_id], ]);
+    if (!$payments){
+      $payment->setRemoteId($order_id);
+      $payment->save();   
+    }    
     
     if (!$configuration['enable_redirect']){
       $snapToken = \Veritrans_Snap::getSnapToken($params); 

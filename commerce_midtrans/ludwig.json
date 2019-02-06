@@ -1,7 +1,0 @@
-{
-  "require": {
-    "veritrans/veritrans-php": {
-      "url": "https://github.com/veritrans/veritrans-php/archive/master.zip"
-    }
-  }
-}
