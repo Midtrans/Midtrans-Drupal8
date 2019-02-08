@@ -43,9 +43,9 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
     $params = array(
       'transaction_details' => array(
         'order_id' => $payment->getOrder()->id(),
-        'gross_amount' => $payment->getAmount()->getNumber(),
+        'gross_amount' => substr($order->getTotalPrice()->getNumber(),0,strpos($order->getTotalPrice()->getNumber(), ".")),
       ),
-      'item_details' => $items,
+      // 'item_details' => $items,
       'customer_details' => array(
         'first_name' => $CustomerDetails->getGivenName(),
         'last_name' => $CustomerDetails->getFamilyName(),
