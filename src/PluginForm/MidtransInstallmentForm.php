@@ -26,12 +26,27 @@ class MidtransInstallmentForm extends BasePaymentOffsiteInstallmentForm {
     foreach ($order->getItems() as $order_item) {
       $items[] = ([
         'id' => $order_item->getPurchasedEntity()->getSku(),
-        'name' => $order_item->label(),
-        'quantity' => substr($order_item->getQuantity(),0,strpos($order_item->getQuantity(), ".")),
-        'price' => substr($order_item->getUnitPrice()->getNumber(),0,strpos($order_item->getUnitPrice()->getNumber(), ".")),
+        'price' => ceil($order_item->getUnitPrice()->getNumber()),
+        'quantity' => ceil($order_item->getQuantity()),
+        'name' => $order_item->label(),        
       ]);
     }
-    //error_log(print_r($items, TRUE)); //debugan
+  
+    $adjustment = $order->collectAdjustments();
+    if ($adjustment){
+    $array_keys = array_keys($adjustment);
+      foreach($array_keys as $key){
+        if ($adjustment[$key]->getType() != 'tax'){
+          $items[] = ([
+            'id' => $adjustment[$key]->getType(),
+            'price' => ceil($adjustment[$key]->getAmount()->getNumber()),            
+            'quantity' => 1,  
+            'name' => $adjustment[$key]->getLabel(),
+          ]);
+        }
+      }  
+    }
+
     /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $billingAddress */
     $CustomerDetails = $order->getBillingProfile()->get('address')->first();
     
@@ -43,9 +58,9 @@ class MidtransInstallmentForm extends BasePaymentOffsiteInstallmentForm {
     $params = array(
       'transaction_details' => array(
         'order_id' => $payment->getOrder()->id(),
-        'gross_amount' => substr($order->getTotalPrice()->getNumber(),0,strpos($order->getTotalPrice()->getNumber(), ".")),
+        'gross_amount' => $order->getTotalPrice()->getNumber(),
       ),
-      // 'item_details' => $items,
+      'item_details' => $items,
       'customer_details' => array(
         'first_name' => $CustomerDetails->getGivenName(),
         'last_name' => $CustomerDetails->getFamilyName(),
