@@ -33,6 +33,7 @@ class Midtrans extends OffsitePaymentGatewayBase {
    */
   public function defaultConfiguration() {
     return [
+        'merchant_id' => '',
         'server_key' => '',
         'client_key' => '',
         'enable_3ds' => '1',
@@ -48,6 +49,14 @@ class Midtrans extends OffsitePaymentGatewayBase {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildConfigurationForm($form, $form_state);
+
+    $form['merchant_id'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Merchant ID'),
+      '#description' => $this->t('Input your Midtrans Merchant ID (e.g M012345). Get the ID <a href="https://dashboard.sandbox.midtrans.com/settings/config_info" target="_blank">here</a>'),
+      '#default_value' => $this->configuration['merchant_id'],
+      '#required' => TRUE,
+    ];
 
     $form['server_key'] = [
       '#type' => 'textfield',
@@ -110,6 +119,7 @@ class Midtrans extends OffsitePaymentGatewayBase {
     parent::submitConfigurationForm($form, $form_state);
     if (!$form_state->getErrors()) {    
       $values = $form_state->getValue($form['#parents']);
+      $this->configuration['merchant_id'] = $values['merchant_id'];
       $this->configuration['server_key'] = $values['server_key'];
       $this->configuration['client_key'] = $values['client_key'];
       $this->configuration['enable_3ds'] = $values['enable_3ds'];
