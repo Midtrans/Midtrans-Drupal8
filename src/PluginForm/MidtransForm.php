@@ -26,8 +26,8 @@ class MidtransForm extends BasePaymentOffsiteForm {
     foreach ($order->getItems() as $order_item) {
       $items[] = ([
         'id' => $order_item->getPurchasedEntity()->getSku(),
-        'price' => ceil($order_item->getUnitPrice()->getNumber()),
-        'quantity' => ceil($order_item->getQuantity()),
+        'price' => intval($order_item->getUnitPrice()->getNumber()),
+        'quantity' => intval($order_item->getQuantity()),
         'name' => $order_item->label(),        
       ]);
     }
@@ -39,7 +39,7 @@ class MidtransForm extends BasePaymentOffsiteForm {
         if ($adjustment[$key]->getType() != 'tax'){
           $items[] = ([
             'id' => $adjustment[$key]->getType(),
-            'price' => ceil($adjustment[$key]->getAmount()->getNumber()),            
+            'price' => intval($adjustment[$key]->getAmount()->getNumber()),            
             'quantity' => 1,  
             'name' => $adjustment[$key]->getLabel(),
           ]);
@@ -59,7 +59,7 @@ class MidtransForm extends BasePaymentOffsiteForm {
     $params = array(
       'transaction_details' => array(
         'order_id' => $payment->getOrder()->id(),
-        'gross_amount' => ceil($order->getTotalPrice()->getNumber()),
+        'gross_amount' => intval($order->getTotalPrice()->getNumber()),
       ),
       'item_details' => $items,
       'customer_details' => array(
