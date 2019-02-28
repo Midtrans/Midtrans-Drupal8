@@ -1,6 +1,9 @@
 commerce_payment.commerce_payment_gateway.plugin.midtrans:
   type: commerce_payment_gateway_configuration
   mapping:
+    merchant_id:
+      type: string
+      label: 'Merchant Id'
     server_key:
       type: string
       label: 'Server key'
@@ -26,6 +29,9 @@ commerce_payment.commerce_payment_gateway.plugin.midtrans:
 commerce_payment.commerce_payment_gateway.plugin.midtrans_installment:
   type: commerce_payment_gateway_configuration
   mapping:
+    merchant_id:
+      type: string
+      label: 'Merchant Id'
     server_key:
       type: string
       label: 'Server key'
@@ -51,6 +57,9 @@ commerce_payment.commerce_payment_gateway.plugin.midtrans_installment:
 commerce_payment.commerce_payment_gateway.plugin.midtrans_installmentoff:
   type: commerce_payment_gateway_configuration
   mapping:
+    merchant_id:
+      type: string
+      label: 'Merchant Id'
     server_key:
       type: string
       label: 'Server key'
@@ -74,8 +83,8 @@ commerce_payment.commerce_payment_gateway.plugin.midtrans_installmentoff:
       label: 'CC Bins'  
     custom_field:
       type: string
-      label: 'Custom Field'      
-
+      label: 'Custom Field'
+      
 commerce_payment.commerce_payment_gateway.plugin.midtrans_promo:
   type: commerce_payment_gateway_configuration
   mapping:
@@ -112,6 +121,9 @@ commerce_payment.commerce_payment_gateway.plugin.midtrans_promo:
     discount_amount:
       type: number
       label: 'Discount Amount'
+    max_discount:
+      type: number
+      label: 'Maximun Discount'  
     custom_expiry:
       type: string
       label: 'Custom Expiry'       
