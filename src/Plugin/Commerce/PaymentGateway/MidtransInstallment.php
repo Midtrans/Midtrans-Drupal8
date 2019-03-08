@@ -16,8 +16,8 @@ use Drupal\commerce_payment;
  *
  * @CommercePaymentGateway(
  *   id = "midtrans_installment",
- *   label = "Midtrans Online Installment (Credit Card Installment via Midtrans)",
- *   display_label = "Midtrans Online Installment",
+ *   label = "Midtrans Online Installment",
+ *   display_label = "Credit Card Installment via Midtrans",
  *    forms = {
  *     "offsite-payment" = "Drupal\commerce_midtrans\PluginForm\MidtransInstallmentForm",
  *   },

@@ -7,13 +7,14 @@ use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+require_once(dirname(dirname(__DIR__)) . '/lib/veritrans/Veritrans.php');
 
 class MidtransForm extends BasePaymentOffsiteForm {
-
   /**
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+    
     $form = parent::buildConfigurationForm($form, $form_state);
     /** @var \Drupal\commerce_payment\Entity\PaymentInterface $payment */
     $payment = $this->entity;
@@ -21,7 +22,8 @@ class MidtransForm extends BasePaymentOffsiteForm {
     $payment_gateway_plugin = $payment->getPaymentGateway()->getPlugin();
     $gateway_mode = $payment_gateway_plugin->getMode();    
     $configuration = $payment_gateway_plugin->getConfiguration();
-    
+    $info = system_get_info('module','commerce_midtrans');
+
     $items = [];
     foreach ($order->getItems() as $order_item) {
       $items[] = ([
@@ -30,6 +32,7 @@ class MidtransForm extends BasePaymentOffsiteForm {
         'quantity' => intval($order_item->getQuantity()),
         'name' => $order_item->label(),        
       ]);
+      $total_item = $total_item + (intval($order_item->getUnitPrice()->getNumber()) * intval($order_item->getQuantity()));
     }
     
     $adjustment = $order->collectAdjustments();
@@ -85,7 +88,7 @@ class MidtransForm extends BasePaymentOffsiteForm {
     );
     // add savecard params
     if ($configuration['enable_savecard']){
-      $params['user_id'] = crypt( $order->getEmail() , \Veritrans_Config::$serverKey );
+      $params['user_id'] = crypt( $order->getEmail() , Veritrans_Config::$serverKey );
       $params['credit_card']['save_card'] = true;
     }
      
@@ -106,7 +109,6 @@ class MidtransForm extends BasePaymentOffsiteForm {
           $params['custom_field3'] = !empty($custom_fields_params[2]) ? $custom_fields_params[2] : null;
       };
     // error_log(print_r($params, TRUE)); //debugan    
-    
     // set remote id for payment
     $order_id = $order->id();
     $payments = \Drupal::entityTypeManager() ->getStorage('commerce_payment') ->loadByProperties([ 'order_id' => [$order_id], ]);
@@ -115,9 +117,18 @@ class MidtransForm extends BasePaymentOffsiteForm {
       $payment->save();   
     }   
 
+//     $current_uri = \Drupal::request()->getRequestUri();
+// $lala =\Drupal::request()->getSchemeAndHttpHost();
+// $sad = $lala . $current_uri;
+//     error_log($sad);
+
+// $numda = strpos($sad, 'payment');
+// $pending = substr($sad, 0, strpos($sad, 'payment')) . 'complete';
+// error_log($pending);
+
     if (!$configuration['enable_redirect']){
+      try {      
       $snapToken = \Veritrans_Snap::getSnapToken($params);
-      try {
       // Redirect to Midtrans SNAP PopUp page.
       ?>
         <!-- start Mixpanel -->
@@ -151,7 +162,7 @@ class MidtransForm extends BasePaymentOffsiteForm {
           var MID_CMS_NAME = "drupal 8";
           var MID_CMS_VERSION = "<?=\Drupal::VERSION?>";
           var MID_PLUGIN_NAME = "fullpayment";
-          var MID_PLUGIN_VERSION = "8.x-1.4";
+          var MID_PLUGIN_VERSION = "<?=$info['version']?>";
 
           var retryCount = 0;
           var snapExecuted = false;
@@ -167,7 +178,8 @@ class MidtransForm extends BasePaymentOffsiteForm {
               },       
               onPending: function(result){
                 MixpanelTrackResult(MID_SNAP_TOKEN, MID_MERCHANT_ID, MID_CMS_NAME, MID_CMS_VERSION, MID_PLUGIN_NAME, MID_PLUGIN_VERSION, 'pending', result);
-                window.location = '<?php echo $form['#return_url'];?>';
+                window.location = "<?php echo $form['#return_url'];?>?&pdf="+result.pdf_url;
+                // alert('awaiting payment');
               },       
               onError: function(result){
                 MixpanelTrackResult(MID_SNAP_TOKEN, MID_MERCHANT_ID, MID_CMS_NAME, MID_CMS_VERSION, MID_PLUGIN_NAME, MID_PLUGIN_VERSION, 'error', result);
@@ -210,7 +222,7 @@ class MidtransForm extends BasePaymentOffsiteForm {
     else{
       try{
         // Redirect to Midtrans SNAP Redirect page.      
-        $redirect_url = \Veritrans_Snap::createTransaction($params)->redirect_url;
+        $redirect_url = Veritrans_Snap::createTransaction($params)->redirect_url;
         $response = new RedirectResponse($redirect_url);
         $response->send();
       }

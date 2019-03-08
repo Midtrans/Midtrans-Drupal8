@@ -16,8 +16,8 @@ use Drupal\commerce_payment;
  *
  * @CommercePaymentGateway(
  *   id = "midtrans_installmentoff",
- *   label = "Midtrans Offline Installment (Credit Card Installment for any bank via Midtrans)",
- *   display_label = "Midtrans Offline Installment",
+ *   label = "Midtrans Offline Installment",
+ *   display_label = "Credit Card Installment for any bank via Midtrans",
  *    forms = {
  *     "offsite-payment" = "Drupal\commerce_midtrans\PluginForm\MidtransForm",
  *   },
@@ -39,6 +39,8 @@ class MidtransOfflineInstallment extends OffsitePaymentGatewayBase {
         'enable_3ds' => '1',
         'enable_redirect' => '',
         'enable_savecard' => '',
+        'installment_term' => '3,6,12',
+        'acquiring_bank' => '',
         'min_amount' => '500000',
         'bin_number' => '',
         'custom_field' => '',
@@ -96,6 +98,20 @@ class MidtransOfflineInstallment extends OffsitePaymentGatewayBase {
       '#description' => $this->t('This will allow your customer to save their card on the payment popup, for faster payment flow on the following purchase'),
     ];
 
+    $form['installment_term'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Installment Terms'),
+      '#default_value' => $this->$configuration['installment_term'],
+      '#description' => $this->t('Input the desired Installment Terms. Separate with coma. e.g: 3,6,12'),
+    ];
+
+    $form['acquiring_bank'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Acquiring Bank'),
+      '#default_value' => $this->$configuration['acquiring_bank'],
+      '#description' => $this->t('Input the desired acquiring bank. e.g: bni </br>Leave blank if you are not sure'),
+    );
+
     $form['min_amount'] = [
       '#type' => 'number',
       '#title' => $this->t('Minimal Transaction Amount'),
@@ -132,7 +148,9 @@ class MidtransOfflineInstallment extends OffsitePaymentGatewayBase {
       $this->configuration['client_key'] = $values['client_key'];
       $this->configuration['enable_3ds'] = $values['enable_3ds'];
       $this->configuration['enable_redirect'] = $values['enable_redirect'];
-      $this->configuration['enable_savecard'] = $values['enable_savecard'];     
+      $this->configuration['enable_savecard'] = $values['enable_savecard'];
+      $this->configuration['installment_term'] = $values['installment_term'];
+      $this->configuration['acquiring_bank'] = $values['acquiring_bank'];
       $this->configuration['min_amount'] = $values['min_amount'];
       $this->configuration['bin_number'] = $values['bin_number'];
       $this->configuration['custom_field'] = $values['custom_field'];    

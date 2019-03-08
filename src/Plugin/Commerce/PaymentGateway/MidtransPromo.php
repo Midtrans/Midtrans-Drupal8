@@ -16,8 +16,8 @@ use Drupal\commerce_payment;
  *
  * @CommercePaymentGateway(
  *   id = "midtrans_promo",
- *   label = "Midtrans Promo Payment (Promo via Midtrans)",
- *   display_label = "Midtrans Promo Payment",
+ *   label = "Midtrans Promo Payment",
+ *   display_label = "Promo Payment via Midtrans",
  *    forms = {
  *     "offsite-payment" = "Drupal\commerce_midtrans\PluginForm\MidtransPromoForm",
  *   },
@@ -112,6 +112,7 @@ class MidtransPromo extends OffsitePaymentGatewayBase {
       '#type' => 'number',
       '#title' => $this->t('Discount Amount'),
       '#default_value' => $this->configuration['discount_amount'],
+      '#description' => $this->t('Enter the discount value. <br>If you choose <b>percentage</b> discount example: 10<br>If you choose <b>flat amount</b> discount example: 5000'),      
     ];
 
     $form['min_amount'] = [
@@ -197,8 +198,29 @@ class MidtransPromo extends OffsitePaymentGatewayBase {
    * {@inheritdoc}
    */
   public function onReturn(OrderInterface $order, Request $request) {
-    // $logger = \Drupal::logger('commerce_midtrans');    
-    drupal_set_message('Thank you for placing your order'); 
+    $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
+    $payment = $this->loadPaymentByOrderId($order->id());
+    $status = $payment->getState()->value;
+    $pdf = $_GET["pdf"];
+
+    if($payment->getState()->value != 'complete'){
+      if ($_GET["pdf"]){
+        if (substr($_GET["pdf"],0,4) == 'http'){
+          $this->messenger()->addMessage(
+            $this->t('Please complete your payment as instructed <a href="' . $pdf . '" target="_blank">here.</a>'));
+        }
+        else{
+          $this->messenger()->addMessage($this->t('Please complete your payment')); 
+        }
+      }
+      else{
+        $this->messenger()->addMessage($this->t('Thank you for your payment.')); 
+      }
+    }
+
+    else{
+      $this->messenger()->addMessage($this->t('Thank you for your payment.')); 
+    }
   }
 
   /**

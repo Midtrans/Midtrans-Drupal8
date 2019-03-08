@@ -2,8 +2,10 @@
 
 namespace Drupal\commerce_midtrans\Plugin\Commerce\PaymentGateway;
 
+use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_payment\Exception\PaymentGatewayException;
+use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\HasPaymentInstructionsInterface;
 use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\OffsitePaymentGatewayBase;
 use Drupal\Core\Form\FormStateInterface;
 use Psr\Log\LoggerInterface;
@@ -16,8 +18,8 @@ use Drupal\commerce_payment;
  *
  * @CommercePaymentGateway(
  *   id = "midtrans",
- *   label = "Midtrans (Online Payment via Midtrans)",
- *   display_label = "Midtrans",
+ *   label = "Midtrans",
+ *   display_label = "Online Payment via Midtrans",
  *    forms = {
  *     "offsite-payment" = "Drupal\commerce_midtrans\PluginForm\MidtransForm",
  *   },
@@ -27,7 +29,7 @@ use Drupal\commerce_payment;
  *   },
  * )
  */
-class Midtrans extends OffsitePaymentGatewayBase {
+class Midtrans extends OffsitePaymentGatewayBase{
   /**
    * {@inheritdoc}
    */
@@ -144,8 +146,29 @@ class Midtrans extends OffsitePaymentGatewayBase {
    * {@inheritdoc}
    */
   public function onReturn(OrderInterface $order, Request $request) {
-    // $logger = \Drupal::logger('commerce_midtrans');    
-    drupal_set_message('Thank you for placing your order'); 
+    $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
+    $payment = $this->loadPaymentByOrderId($order->id());
+    $status = $payment->getState()->value;
+    $pdf = $_GET["pdf"];
+
+    if($payment->getState()->value != 'complete'){
+      if ($_GET["pdf"]){
+        if (substr($_GET["pdf"],0,4) == 'http'){
+          $this->messenger()->addMessage(
+            $this->t('Please complete your payment as instructed <a href="' . $pdf . '" target="_blank">here.</a>'));
+        }
+        else{
+          $this->messenger()->addMessage($this->t('Please complete your payment')); 
+        }
+      }
+      else{
+        $this->messenger()->addMessage($this->t('Thank you for your payment.')); 
+      }
+    }
+
+    else{
+      $this->messenger()->addMessage($this->t('Thank you for your payment.')); 
+    }
   }
 
   /**
@@ -203,5 +226,28 @@ class Midtrans extends OffsitePaymentGatewayBase {
       $payment->save(); 
     }    
   }
+
+  /**
+   * Builds the payment instructions.
+   *
+   * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
+   *   The payment.
+   *
+   * @return array
+   *   A render array containing the payment instructions.
+   */
+  // public function buildPaymentInstructions(PaymentInterface $payment) {
+  //   $instructions = [
+  //     '#type' => 'processed_text',
+  //     '#text' => $this->t('Thank you for your payment with @gateway.',
+  //       ['@gateway' => $this->getLabel()],
+  //       ['context' => 'Midtrans payment instructions']
+  //     ),
+  //     '#format' => 'plain_text',
+  //   ];
+  //   // error_log(print_r( $payment->getOrder()->id(),TRUE));
+
+  //   return $instructions;
+  // }  
 }
 ?>

@@ -7,6 +7,7 @@ use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+require_once(dirname(dirname(__DIR__)) . '/lib/veritrans/Veritrans.php');
 
 class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflineForm {
 
@@ -21,13 +22,14 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
     $payment_gateway_plugin = $payment->getPaymentGateway()->getPlugin();
     $gateway_mode = $payment_gateway_plugin->getMode();    
     $configuration = $payment_gateway_plugin->getConfiguration();
+    $info = system_get_info('module','commerce_midtrans');
     
     $items = [];
     foreach ($order->getItems() as $order_item) {
       $items[] = ([
         'id' => $order_item->getPurchasedEntity()->getSku(),
-        'price' => intval($order_item->getUnitPrice()->getNumber()),
-        'quantity' => intval($order_item->getQuantity()),
+        'price' => ceil($order_item->getUnitPrice()->getNumber()),
+        'quantity' => ceil($order_item->getQuantity()),
         'name' => $order_item->label(),        
       ]);
     }
@@ -39,7 +41,7 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
         if ($adjustment[$key]->getType() != 'tax'){
           $items[] = ([
             'id' => $adjustment[$key]->getType(),
-            'price' => intval($adjustment[$key]->getAmount()->getNumber()),            
+            'price' => ceil($adjustment[$key]->getAmount()->getNumber()),            
             'quantity' => 1,  
             'name' => $adjustment[$key]->getLabel(),
           ]);
@@ -59,7 +61,7 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
     $params = array(
       'transaction_details' => array(
         'order_id' => $payment->getOrder()->id(),
-        'gross_amount' => intval($order->getTotalPrice()->getNumber()),
+        'gross_amount' => $order->getTotalPrice()->getNumber(),
       ),
       'item_details' => $items,
       'customer_details' => array(
@@ -83,23 +85,25 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
         'finish' => $form['#return_url'],
         'error' => $form['#cancel_url'],
       ),
-    );
+    );  
 
-    //add minimal amount params
+    //add installment params
     if($payment->getAmount()->getNumber() >= $configuration['min_amount']){
-          $terms = array(3,6,9,12,15,18,21,24,27,30,33,36);
-          $params['credit_card']['installment']['required'] = true;
-          $params['credit_card']['installment']['terms'] = array(
-              'bri' => $terms, 
-              'maybank' => $terms,
-              'bri' => $terms,
-              'bni' => $terms, 
-              'mandiri' => $terms, 
-              'cimb' => $terms,
-              'bca' => $terms
-          );      
-    };     
-    
+      // Build bank & terms array
+      $termsStr = explode(',', $settings['installment_term']);
+      $terms = array();
+      foreach ($termsStr as $termStr) {
+        $terms[] = (int)$termStr;
+      };
+      if (strlen($configuration['acquiring_bank']) > 0){
+        $params['credit_card']['bank'] = $configuration['acquiring_bank'];
+      }
+
+      // Add installment param
+      $params['credit_card']['installment']['required'] = true;
+      $params['credit_card']['installment']['terms'] = array('offline' => $terms);      
+    };
+
     // add bin params
     if (strlen($configuration['bin_number']) > 0){
       $bins = explode(',', $configuration['bin_number']);
@@ -166,7 +170,7 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
           var MID_CMS_NAME = "drupal 8";
           var MID_CMS_VERSION = "<?=\Drupal::VERSION?>";
           var MID_PLUGIN_NAME = "offline installment";
-          var MID_PLUGIN_VERSION = "8.x-1.4";
+          var MID_PLUGIN_VERSION = "<?=$info['version']?>";
 
           var retryCount = 0;
           var snapExecuted = false;

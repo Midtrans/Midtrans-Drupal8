@@ -1,11 +1,11 @@
 name: Commerce Midtrans
 type: module
-description: 'Provides Commerce integration for Midtrans Payments.'
+description: 'Provides Commerce integration for Midtrans Online Payments.'
 package: Commerce (contrib)
 dependencies:
   - commerce:commerce_payment
 # Information
-version: '8.x-1.4'
+version: '8.x-2.00'
 core: '8.x'
 project: 'commerce_midtrans'
 datestamp: 1543190400

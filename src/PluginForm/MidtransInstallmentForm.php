@@ -7,6 +7,7 @@ use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+require_once(dirname(dirname(__DIR__)) . '/lib/veritrans/Veritrans.php');
 
 class MidtransInstallmentForm extends BasePaymentOffsiteInstallmentForm {
 
@@ -21,13 +22,14 @@ class MidtransInstallmentForm extends BasePaymentOffsiteInstallmentForm {
     $payment_gateway_plugin = $payment->getPaymentGateway()->getPlugin();
     $gateway_mode = $payment_gateway_plugin->getMode();    
     $configuration = $payment_gateway_plugin->getConfiguration();
-    
+    $info = system_get_info('module','commerce_midtrans');    
+
     $items = [];
     foreach ($order->getItems() as $order_item) {
       $items[] = ([
         'id' => $order_item->getPurchasedEntity()->getSku(),
-        'price' => intval($order_item->getUnitPrice()->getNumber()),
-        'quantity' => intval($order_item->getQuantity()),
+        'price' => ceil($order_item->getUnitPrice()->getNumber()),
+        'quantity' => ceil($order_item->getQuantity()),
         'name' => $order_item->label(),        
       ]);
     }
@@ -39,7 +41,7 @@ class MidtransInstallmentForm extends BasePaymentOffsiteInstallmentForm {
         if ($adjustment[$key]->getType() != 'tax'){
           $items[] = ([
             'id' => $adjustment[$key]->getType(),
-            'price' => intval($adjustment[$key]->getAmount()->getNumber()),            
+            'price' => ceil($adjustment[$key]->getAmount()->getNumber()),            
             'quantity' => 1,  
             'name' => $adjustment[$key]->getLabel(),
           ]);
@@ -59,7 +61,7 @@ class MidtransInstallmentForm extends BasePaymentOffsiteInstallmentForm {
     $params = array(
       'transaction_details' => array(
         'order_id' => $payment->getOrder()->id(),
-        'gross_amount' => intval($order->getTotalPrice()->getNumber()),
+        'gross_amount' => $order->getTotalPrice()->getNumber(),
       ),
       'item_details' => $items,
       'customer_details' => array(
@@ -158,7 +160,7 @@ class MidtransInstallmentForm extends BasePaymentOffsiteInstallmentForm {
           var MID_CMS_NAME = "drupal 8";
           var MID_CMS_VERSION = "<?=\Drupal::VERSION?>";
           var MID_PLUGIN_NAME = "online installment";
-          var MID_PLUGIN_VERSION = "8.x-1.4";
+          var MID_PLUGIN_VERSION = "<?=$info['version']?>";
 
           var retryCount = 0;
           var snapExecuted = false;

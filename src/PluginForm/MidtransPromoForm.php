@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\commerce_order\Adjustment;
 use Drupal\commerce_price\Price;
 use Drupal\commerce_order\Entity\OrderInterface;
+require_once(dirname(dirname(__DIR__)) . '/lib/veritrans/Veritrans.php');
 
 class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
 
@@ -24,6 +25,7 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
     $payment_gateway_plugin = $payment->getPaymentGateway()->getPlugin();
     $gateway_mode = $payment_gateway_plugin->getMode();    
     $configuration = $payment_gateway_plugin->getConfiguration();
+    $info = system_get_info('module','commerce_midtrans');
 
     $items = [];
     foreach ($order->getItems() as $order_item) {
@@ -182,7 +184,7 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
           var MID_CMS_NAME = "drupal 8";
           var MID_CMS_VERSION = "<?=\Drupal::VERSION?>";
           var MID_PLUGIN_NAME = "promo";
-          var MID_PLUGIN_VERSION = "8.x-1.4";
+          var MID_PLUGIN_VERSION = "<?=$info['version']?>";
 
           var retryCount = 0;
           var snapExecuted = false;
