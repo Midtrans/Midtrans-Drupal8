@@ -5,7 +5,11 @@ package: Commerce (contrib)
 dependencies:
   - commerce:commerce_payment
 # Information
-version: '8.x-2.00'
+# version: '8.x-2.00'
 core: '8.x'
+# project: 'commerce_midtrans'
+# datestamp: 1543190400
+# Information added by Drupal.org packaging script on 2019-10-14
+version: '8.x-1.0-beta1'
 project: 'commerce_midtrans'
-datestamp: 1543190400
+datestamp: 1571031790
