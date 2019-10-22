@@ -10,8 +10,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Drupal\commerce_payment\Controller;
 use Drupal\commerce_payment;
-use Midtrans\Config;
-use Midtrans\Notification;
 
 /**
  * Provides the Midtrans Checkout payment gateway.
@@ -126,7 +124,7 @@ class MidtransOfflineInstallment extends OffsitePaymentGatewayBase {
       '#title' => $this->t('Allowed CC BINs'),
       '#description' => $this->t('Fill with CC BIN numbers (or bank name) that you want to allow to use this payment button. </br> Separate BIN number with coma Example: 4,5,4811,bni,mandiri'),
       '#default_value' => $this->configuration['bin_number'],
-    ];
+    ];    
 
     $form['custom_field'] = [
       '#type' => 'textfield',
@@ -135,7 +133,7 @@ class MidtransOfflineInstallment extends OffsitePaymentGatewayBase {
       '#description' => $this->t('This will allow you to set custom fields that will be displayed on Midtrans dashboard. Up to 3 fields are available, separate by coma (,)<br>Example: Order from web, Processed'),
     ];
 
-    return $form;
+    return $form; 
   }
 
   /**
@@ -143,9 +141,9 @@ class MidtransOfflineInstallment extends OffsitePaymentGatewayBase {
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     parent::submitConfigurationForm($form, $form_state);
-    if (!$form_state->getErrors()) {
+    if (!$form_state->getErrors()) {    
       $values = $form_state->getValue($form['#parents']);
-      $this->configuration['merchant_id'] = $values['merchant_id'];
+      $this->configuration['merchant_id'] = $values['merchant_id'];      
       $this->configuration['server_key'] = $values['server_key'];
       $this->configuration['client_key'] = $values['client_key'];
       $this->configuration['enable_3ds'] = $values['enable_3ds'];
@@ -155,7 +153,7 @@ class MidtransOfflineInstallment extends OffsitePaymentGatewayBase {
       $this->configuration['acquiring_bank'] = $values['acquiring_bank'];
       $this->configuration['min_amount'] = $values['min_amount'];
       $this->configuration['bin_number'] = $values['bin_number'];
-      $this->configuration['custom_field'] = $values['custom_field'];
+      $this->configuration['custom_field'] = $values['custom_field'];    
     }
   }
 
@@ -173,25 +171,25 @@ class MidtransOfflineInstallment extends OffsitePaymentGatewayBase {
    * {@inheritdoc}
    */
   public function onReturn(OrderInterface $order, Request $request) {
-    // $logger = \Drupal::logger('commerce_midtrans');
-    drupal_set_message('Thank you for placing your order');
+    // $logger = \Drupal::logger('commerce_midtrans');    
+    drupal_set_message('Thank you for placing your order'); 
   }
 
   /**
    * {@inheritdoc}
    */
   public function onNotify(Request $request) {
-    Config::$serverKey =  $this->getConfiguration()['server_key'];
-    Config::$isProduction = ($this->getMode() == 'production') ? TRUE : FALSE;
-    $response = new Notification();
+    \Veritrans_Config::$serverKey =  $this->getConfiguration()['server_key'];
+    \Veritrans_Config::$isProduction = ($this->getMode() == 'production') ? TRUE : FALSE;
+    $response = new \Veritrans_Notification();
     /** @var \Drupal\commerce_payment\PaymentStorage $payment_storage */
     $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
     /** @var \Drupal\commerce_payment\Entity\Payment $payment */
     //$payment = $payment_storage->loadByRemoteId($response->order_id);
     /** @var \Drupal\commerce_order\Entity\Order $order */
     //$order = $payment->getOrder();
-
-    //error_log('Response from Midtrans : '. print_r($response, TRUE)); //debugan
+    
+    //error_log('Response from Midtrans : '. print_r($response, TRUE)); //debugan  
     $payment = $this->loadPaymentByOrderId2($response->order_id);
 
     if ($response->transaction_status == 'capture'){
@@ -203,24 +201,24 @@ class MidtransOfflineInstallment extends OffsitePaymentGatewayBase {
         else if ($response->fraud_status == 'challenge'){
           $payment->setRemoteState($response->transaction_status);
           $payment->setState('challenge');
-          $payment->save();
+          $payment->save();        
         }
     }
     else if ($response->transaction_status == 'cancel'){
       $payment->setRemoteState($response->transaction_status);
       $payment->setState('cancelled');
-      $payment->save();
+      $payment->save(); 
     }
     else if ($response->transaction_status == 'expire'){
       $payment->setRemoteState($response->transaction_status);
       $payment->setState('cancelled');
-      $payment->save();
-    }
+      $payment->save(); 
+    }    
     else if ($response->transaction_status == 'deny'){
       $payment->setRemoteState($response->transaction_status);
       $payment->setState('failed');
-      $payment->save();
-    }
+      $payment->save(); 
+    }    
     else if ($response->transaction_status == 'pending'){
       $payment->setRemoteState($response->transaction_status);
       $payment->setState('pending');
@@ -229,8 +227,8 @@ class MidtransOfflineInstallment extends OffsitePaymentGatewayBase {
     else if ($response->transaction_status == 'settlement'){
       $payment->setRemoteState($response->transaction_status);
       $payment->setState('complete');
-      $payment->save();
-    }
+      $payment->save(); 
+    }    
   }
 }
 ?>
