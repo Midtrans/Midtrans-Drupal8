@@ -222,7 +222,7 @@ class MidtransForm extends BasePaymentOffsiteForm {
     else{
       try{
         // Redirect to Midtrans SNAP Redirect page.      
-        $redirect_url = Veritrans_Snap::createTransaction($params)->redirect_url;
+        $redirect_url = \Veritrans_Snap::createTransaction($params)->redirect_url;
         $response = new RedirectResponse($redirect_url);
         $response->send();
       }
