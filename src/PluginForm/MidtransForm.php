@@ -7,7 +7,7 @@ use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-require_once(dirname(dirname(__DIR__)) . '/lib/veritrans/Veritrans.php');
+require_once(dirname(dirname(__DIR__)) . '/lib/midtrans/Midtrans.php');
 
 class MidtransForm extends BasePaymentOffsiteForm {
   /**
@@ -54,9 +54,9 @@ class MidtransForm extends BasePaymentOffsiteForm {
     $CustomerDetails = $order->getBillingProfile()->get('address')->first();
     
     $snap_script_url = ($gateway_mode == 'production') ? "https://app.midtrans.com/snap/snap.js" : "https://app.sandbox.midtrans.com/snap/snap.js";
-    \Veritrans_Config::$isProduction = ($gateway_mode == 'production') ? TRUE : FALSE;
-    \Veritrans_Config::$serverKey = $configuration['server_key'];
-    \Veritrans_Config::$is3ds = ($configuration['enable_3ds'] == 1) ? TRUE : FALSE;
+    \Midtrans\Config::$isProduction = ($gateway_mode == 'production') ? TRUE : FALSE;
+    \Midtrans\Config::$serverKey = $configuration['server_key'];
+    \Midtrans\Config::$is3ds = ($configuration['enable_3ds'] == 1) ? TRUE : FALSE;
     $mixpanel_key = ($gateway_mode == 'production') ? "17253088ed3a39b1e2bd2cbcfeca939a" : "9dcba9b440c831d517e8ff1beff40bd9";
 
     $params = array(
@@ -88,7 +88,7 @@ class MidtransForm extends BasePaymentOffsiteForm {
     );
     // add savecard params
     if ($configuration['enable_savecard']){
-      $params['user_id'] = crypt( $order->getEmail() , Veritrans_Config::$serverKey );
+      $params['user_id'] = crypt( $order->getEmail() , \Midtrans\Config::$serverKey );
       $params['credit_card']['save_card'] = true;
     }
      
@@ -128,7 +128,7 @@ class MidtransForm extends BasePaymentOffsiteForm {
 
     if (!$configuration['enable_redirect']){
       try {      
-      $snapToken = \Veritrans_Snap::getSnapToken($params);
+      $snapToken = \Midtrans\Snap::getSnapToken($params);
       // Redirect to Midtrans SNAP PopUp page.
       ?>
         <!-- start Mixpanel -->
@@ -222,7 +222,7 @@ class MidtransForm extends BasePaymentOffsiteForm {
     else{
       try{
         // Redirect to Midtrans SNAP Redirect page.      
-        $redirect_url = \Veritrans_Snap::createTransaction($params)->redirect_url;
+        $redirect_url = \Midtrans\Snap::createTransaction($params)->redirect_url;
         $response = new RedirectResponse($redirect_url);
         $response->send();
       }

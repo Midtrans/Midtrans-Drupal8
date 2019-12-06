@@ -152,9 +152,9 @@ class MidtransInstallment extends InstallmentGatewayBase {
    * {@inheritdoc}
    */
   public function onNotify(Request $request) {
-    \Veritrans_Config::$serverKey =  $this->getConfiguration()['server_key'];
-    \Veritrans_Config::$isProduction = ($this->getMode() == 'production') ? TRUE : FALSE;
-    $response = new \Veritrans_Notification();
+    \Midtrans\Config::$serverKey =  $this->getConfiguration()['server_key'];
+    \Midtrans\Config::$isProduction = ($this->getMode() == 'production') ? TRUE : FALSE;
+    $response = new \Midtrans\Notification();
     /** @var \Drupal\commerce_payment\PaymentStorage $payment_storage */
     $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
     /** @var \Drupal\commerce_payment\Entity\Payment $payment */
