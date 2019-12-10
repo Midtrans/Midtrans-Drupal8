@@ -5,7 +5,7 @@ package: Commerce (contrib)
 dependencies:
   - commerce:commerce_payment
 # Information
-version: '8.x-2.00'
+version: '8.x-2.10'
 core: '8.x'
 project: 'commerce_midtrans'
 datestamp: 1543190400
