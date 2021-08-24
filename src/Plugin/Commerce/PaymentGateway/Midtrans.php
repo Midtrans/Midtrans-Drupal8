@@ -179,14 +179,7 @@ class Midtrans extends OffsitePaymentGatewayBase{
     \Midtrans\Config::$serverKey =  $this->getConfiguration()['server_key'];
     \Midtrans\Config::$isProduction = ($this->getMode() == 'production') ? TRUE : FALSE;
     $response = new \Midtrans\Notification();
-    /** @var \Drupal\commerce_payment\PaymentStorage $payment_storage */
-    $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
-    /** @var \Drupal\commerce_payment\Entity\Payment $payment */
-    //$payment = $payment_storage->loadByRemoteId($response->order_id);
-    /** @var \Drupal\commerce_order\Entity\Order $order */
-    //$order = $payment->getOrder();
 
-    //error_log('Response from Midtrans : '. print_r($response, TRUE)); //debugan
     $payment = $this->loadPaymentByOrderId($response->order_id);
 
     if ($response->transaction_status == 'capture'){
