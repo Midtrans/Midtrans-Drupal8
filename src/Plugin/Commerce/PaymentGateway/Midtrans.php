@@ -2,7 +2,6 @@
 
 namespace Drupal\commerce_midtrans\Plugin\Commerce\PaymentGateway;
 
-use Drupal\commerce_payment\Entity\PaymentInterface;
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_payment\Exception\PaymentGatewayException;
 use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\HasPaymentInstructionsInterface;
@@ -296,27 +295,4 @@ class Midtrans extends OffsitePaymentGatewayBase{
     }
   }
 
-  /**
-   * Builds the payment instructions.
-   *
-   * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
-   *   The payment.
-   *
-   * @return array
-   *   A render array containing the payment instructions.
-   */
-  // public function buildPaymentInstructions(PaymentInterface $payment) {
-  //   $instructions = [
-  //     '#type' => 'processed_text',
-  //     '#text' => $this->t('Thank you for your payment with @gateway.',
-  //       ['@gateway' => $this->getLabel()],
-  //       ['context' => 'Midtrans payment instructions']
-  //     ),
-  //     '#format' => 'plain_text',
-  //   ];
-  //   // error_log(print_r( $payment->getOrder()->id(),TRUE));
-
-  //   return $instructions;
-  // }
 }
-?>
