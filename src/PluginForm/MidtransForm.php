@@ -38,7 +38,6 @@ class MidtransForm extends BasePaymentOffsiteForm {
         'quantity' => intval($order_item->getQuantity()),
         'name' => $order_item->label(),
       ]);
-      $total_item = $total_item + (intval($order_item->getUnitPrice()->getNumber()) * intval($order_item->getQuantity()));
     }
 
     $adjustment = $order->collectAdjustments();
