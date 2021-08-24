@@ -17,9 +17,9 @@ class MidtransForm extends BasePaymentOffsiteForm {
 
     $form = parent::buildConfigurationForm($form, $form_state);
     /** @var \Drupal\commerce_payment\Entity\PaymentInterface $payment */
-    $payment = $this->entity;
-    $order = $payment->getOrder();
-    $payment_gateway_plugin = $payment->getPaymentGateway()->getPlugin();
+    $create_payment = $this->entity;
+    $order = $create_payment->getOrder();
+    $payment_gateway_plugin = $create_payment->getPaymentGateway()->getPlugin();
     $gateway_mode = $payment_gateway_plugin->getMode();
     $configuration = $payment_gateway_plugin->getConfiguration();
 
@@ -38,17 +38,26 @@ class MidtransForm extends BasePaymentOffsiteForm {
 
     // set remote id for payment
     $order_id = $order->id();
-    $payments = \Drupal::entityTypeManager() ->getStorage('commerce_payment') ->loadByProperties([ 'order_id' => [$order_id], ]);
-    if (!$payments){
-      $payment->setRemoteId($order_id);
-      $payment->save();
+    $get_payments = \Drupal::entityTypeManager()->getStorage('commerce_payment')->loadByProperties(['order_id' => $order_id]);
+    $get_payment = reset($get_payments);
+    if (!$get_payment) {
+      $create_payment->setRemoteId($order_id);
+      $create_payment->save();
+    }
+    else {
+      // redirect to finish url
+      // to avoid the user refresh the payment page after select payment method and trigger error transaction_details.order_id sudah digunakan
+      if ($get_payment->getState()->value != 'new' && $order->get('checkout_step')->value == 'payment') {
+        $response = new RedirectResponse($form['#return_url']);
+        $response->send();
+      }
     }
 
     $params = $this->buildTransactionParams($order, $configuration, $form);
     if (!$configuration['enable_redirect']){
       try {
-        $snapToken = \Midtrans\Snap::getSnapToken($params);
-      // Redirect to Midtrans SNAP PopUp page.
+        // Redirect to Midtrans SNAP PopUp page.
+        $snap_token = \Midtrans\Snap::getSnapToken($params);
       }
       catch (Exception $e) {
         drupal_set_message($e->getMessage(), 'error');
@@ -68,11 +77,12 @@ class MidtransForm extends BasePaymentOffsiteForm {
       }
     }
 
+
     $js_settings = [
       'data' => [
         'snapUrl' => $snap_script_url,
         'clientKey' => $configuration['client_key'],
-        'snapToken' => $snapToken,
+        'snapToken' => $snap_token,
         'merchantID' => $configuration['merchant_id'],
         'cmsName' => 'Drupal',
         'cmsVersion' => \Drupal::VERSION,
