@@ -179,15 +179,4 @@ class MidtransForm extends BasePaymentOffsiteForm {
     return $form;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function buildRedirectForm(array $form, FormStateInterface $form_state, $redirect_url, array $data, $redirect_method = BasePaymentOffsiteForm::REDIRECT_GET) {
-    $helpMessage = t('Please wait while the payment server loads. If nothing happens,');
-    $form['commerce_message'] = [
-      '#markup' => '<div class="checkout-help">' . $helpMessage . '<a href=""> click me.</a>' . '</div>',
-      '#weight' => -10,
-    ];
-    return $form;
-  }
 }
