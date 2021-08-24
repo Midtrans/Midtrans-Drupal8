@@ -52,12 +52,14 @@ class MidtransInstallmentForm extends BasePaymentOffsiteInstallmentForm {
     $params = $this->buildTransactionParams($order, $configuration, $form);
     if (!$configuration['enable_redirect']){
       try {
+        // add token to order metadata, so when user refresh payment page, can use same token
+        // only available for cc transaction
+        // because when use in snap fullpayment (multiple payment method)
+        // order automatically completed when got pending notification
         $snap_token = $order->getData('snap_token');
         if (empty($snap_token)) {
           // Redirect to Midtrans SNAP PopUp page.
           $snap_token = \Midtrans\Snap::getSnapToken($params);
-
-          // add token to order metadata, so when user refresh payment page, can use same token
           $order->setData('snap_token', $snap_token);
           $order->save();
         }

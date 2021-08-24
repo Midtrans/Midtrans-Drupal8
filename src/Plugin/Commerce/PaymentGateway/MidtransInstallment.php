@@ -189,6 +189,17 @@ class MidtransInstallment extends InstallmentGatewayBase {
     $this->messenger()->addMessage($this->t($message));
   }
 
+  public function onCancel(OrderInterface $order, Request $request) {
+    // clear snap token, if snap token was expired, can use new snap token
+    // only available for cc transaction
+    $order->setData('snap_token', NULL);
+    $order->save();
+
+    $this->messenger()->addMessage($this->t('You have canceled checkout at @gateway but may resume the checkout process here when you are ready.', [
+      '@gateway' => $this->getDisplayLabel(),
+    ]));
+  }
+
   /**
    * {@inheritdoc}
    */
