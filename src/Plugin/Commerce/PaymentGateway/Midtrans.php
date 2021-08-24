@@ -238,6 +238,16 @@ class Midtrans extends OffsitePaymentGatewayBase{
     $payment = $this->loadPaymentByOrderId($response->order_id);
     $order = $payment->getOrder();
 
+    // when use snap popup, some payment methods like akulaku or direct debit, will redirect to 3rd party website
+    // and never returns to the site, causes the order still unplaced (draft) and stuck in checkout
+    // and make sure that the order is placed when got status pending (order was created in midtrans)
+    if ($order->getState()->getId() == 'draft' && $response->transaction_status == 'pending') {
+      $order_state = $order->getState();
+      $order_state->applyTransitionById('place');
+      $order->unlock();
+      $order->save();
+    }
+
     // change payment remote id with transaction id
     $payment->setRemoteId($response->transaction_id);
     $payment->save();
