@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\commerce_midtrans\PluginForm;
+
 use Drupal\commerce_payment\PluginForm\PaymentOffsiteForm as BasePaymentOffsiteForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
@@ -13,7 +14,6 @@ class MidtransForm extends BasePaymentOffsiteForm {
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-
     $form = parent::buildConfigurationForm($form, $form_state);
     /** @var \Drupal\commerce_payment\Entity\PaymentInterface $payment */
     $create_payment = $this->entity;
@@ -59,8 +59,11 @@ class MidtransForm extends BasePaymentOffsiteForm {
         $snap_token = \Midtrans\Snap::getSnapToken($params);
       }
       catch (Exception $e) {
-        drupal_set_message($e->getMessage(), 'error');
-        error_log($e->getMessage());
+        $message = 'Unable to pay via Midtrans. Please contact the website owner to get detail, thank you.';
+        \Drupal::messenger()->addWarning($message);
+        \Drupal::logger('commerce_midtrans')->error($e->getMessage());
+        $response = new RedirectResponse($form['#cancel_url']);
+        $response->send();
       }
     }
     else{
@@ -71,8 +74,11 @@ class MidtransForm extends BasePaymentOffsiteForm {
         $response->send();
       }
       catch (Exception $e) {
-        drupal_set_message($e->getMessage(), 'error');
-        error_log($e->getMessage());
+        $message = 'Unable to pay via Midtrans. Please contact the website owner to get detail, thank you.';
+        \Drupal::messenger()->addWarning($message);
+        \Drupal::logger('commerce_midtrans')->notice($e->getMessage());
+        $response = new RedirectResponse($form['#cancel_url']);
+        $response->send();
       }
     }
 
