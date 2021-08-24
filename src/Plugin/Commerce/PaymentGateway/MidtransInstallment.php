@@ -53,23 +53,23 @@ class MidtransInstallment extends InstallmentGatewayBase {
     $form['merchant_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Merchant ID'),
-      '#description' => $this->t('Input your Midtrans Merchant ID (e.g M012345). Get the ID <a href="https://dashboard.sandbox.midtrans.com/settings/config_info" target="_blank">here</a>'),
+      '#description' => $this->t('Input your Midtrans Merchant ID (e.g M012345). Get the ID <a class="config_info" href="#" target="_blank">here</a>'),
       '#default_value' => $this->configuration['merchant_id'],
       '#required' => TRUE,
     ];
- 
+
     $form['server_key'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Server key'),
-      '#description' => $this->t('Input your Midtrans Server Key. Get the key <a href="https://dashboard.sandbox.midtrans.com/settings/config_info" >here</a> for Sandbox and <a href="https://dashboard.midtrans.com/settings/config_info">here</a> for Production.'),
+      '#title' => $this->t('Server Key'),
+      '#description' => $this->t('Input your Midtrans Server Key. Get the key <a class="config_info" href="#" target="_blank">here</a>'),
       '#default_value' => $this->configuration['server_key'],
       '#required' => TRUE,
     ];
 
     $form['client_key'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Client key'),
-      '#description' => $this->t('Input your Midtrans Client Key. Get the key <a href="https://dashboard.sandbox.midtrans.com/settings/config_info" >here</a> for Sandbox and <a href="https://dashboard.midtrans.com/settings/config_info">here</a> for Production.'),
+      '#title' => $this->t('Client Key'),
+      '#description' => $this->t('Input your Midtrans Client Key. Get the key <a class="config_info" href="#" target="_blank">here</a>'),
       '#default_value' => $this->configuration['client_key'],
       '#required' => TRUE,
     ];
@@ -109,7 +109,14 @@ class MidtransInstallment extends InstallmentGatewayBase {
       '#default_value' => $this->configuration['custom_field'],
     ];
 
-    return $form; 
+    $form['midtrans_admin_module'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#attributes' => ['id' => 'midtrans-admin-module-installment'],
+    ];
+    $form['#attached']['library'][] = 'commerce_midtrans/adminmodule';
+
+    return $form;
   }
 
   /**
@@ -117,7 +124,7 @@ class MidtransInstallment extends InstallmentGatewayBase {
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     parent::submitConfigurationForm($form, $form_state);
-    if (!$form_state->getErrors()) {    
+    if (!$form_state->getErrors()) {
       $values = $form_state->getValue($form['#parents']);
       $this->configuration['merchant_id'] = $values['merchant_id'];
       $this->configuration['server_key'] = $values['server_key'];
@@ -125,8 +132,8 @@ class MidtransInstallment extends InstallmentGatewayBase {
       $this->configuration['enable_3ds'] = $values['enable_3ds'];
       $this->configuration['min_amount'] = $values['min_amount'];
       $this->configuration['enable_redirect'] = $values['enable_redirect'];
-      $this->configuration['enable_savecard'] = $values['enable_savecard'];      
-      $this->configuration['custom_field'] = $values['custom_field'];    
+      $this->configuration['enable_savecard'] = $values['enable_savecard'];
+      $this->configuration['custom_field'] = $values['custom_field'];
     }
   }
 
@@ -144,8 +151,8 @@ class MidtransInstallment extends InstallmentGatewayBase {
    * {@inheritdoc}
    */
   public function onReturn(OrderInterface $order, Request $request) {
-    // $logger = \Drupal::logger('commerce_midtrans');    
-    drupal_set_message('Thank you for placing your order'); 
+    // $logger = \Drupal::logger('commerce_midtrans');
+    drupal_set_message('Thank you for placing your order');
   }
 
   /**
@@ -161,8 +168,8 @@ class MidtransInstallment extends InstallmentGatewayBase {
     //$payment = $payment_storage->loadByRemoteId($response->order_id);
     /** @var \Drupal\commerce_order\Entity\Order $order */
     //$order = $payment->getOrder();
-    
-    //error_log('Response from Midtrans : '. print_r($response, TRUE)); //debugan  
+
+    //error_log('Response from Midtrans : '. print_r($response, TRUE)); //debugan
     $payment = $this->loadPaymentByOrderId1($response->order_id);
 
     if ($response->transaction_status == 'capture'){
@@ -174,24 +181,24 @@ class MidtransInstallment extends InstallmentGatewayBase {
         else if ($response->fraud_status == 'challenge'){
           $payment->setRemoteState($response->transaction_status);
           $payment->setState('challenge');
-          $payment->save();        
+          $payment->save();
         }
     }
     else if ($response->transaction_status == 'cancel'){
       $payment->setRemoteState($response->transaction_status);
       $payment->setState('cancelled');
-      $payment->save(); 
+      $payment->save();
     }
     else if ($response->transaction_status == 'expire'){
       $payment->setRemoteState($response->transaction_status);
       $payment->setState('cancelled');
-      $payment->save(); 
-    }    
+      $payment->save();
+    }
     else if ($response->transaction_status == 'deny'){
       $payment->setRemoteState($response->transaction_status);
       $payment->setState('failed');
-      $payment->save(); 
-    }    
+      $payment->save();
+    }
     else if ($response->transaction_status == 'pending'){
       $payment->setRemoteState($response->transaction_status);
       $payment->setState('pending');
@@ -200,8 +207,7 @@ class MidtransInstallment extends InstallmentGatewayBase {
     else if ($response->transaction_status == 'settlement'){
       $payment->setRemoteState($response->transaction_status);
       $payment->setState('complete');
-      $payment->save(); 
-    }    
-  }  
+      $payment->save();
+    }
+  }
 }
-?>
