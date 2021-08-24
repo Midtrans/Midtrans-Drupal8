@@ -41,6 +41,8 @@ class MidtransInstallment extends InstallmentGatewayBase {
         'enable_savecard' => '',
         'min_amount' => '500000',
         'custom_field' => '',
+        'enable_override_notification' => '1',
+        'notification_url' => '',
       ] + parent::defaultConfiguration();
   }
 
