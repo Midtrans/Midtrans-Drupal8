@@ -46,14 +46,21 @@ class MidtransInstallmentForm extends BasePaymentOffsiteInstallmentForm {
     \Midtrans\Config::$overrideNotifUrl = ($configuration['enable_override_notification']) ? $configuration['notification_url'] : FALSE;
     \Midtrans\Config::$curlOptions[CURLOPT_HTTPHEADER][] = 'Drupal-Version: '.\Drupal::VERSION;
     \Midtrans\Config::$curlOptions[CURLOPT_HTTPHEADER][] = 'Commerce-Version: '.$commerce_info['version'];
-    \Midtrans\Config::$curlOptions[CURLOPT_HTTPHEADER][] = 'Module-Version: '.'Midtrans Online Payment-v'.$plugin_info['version'];
+    \Midtrans\Config::$curlOptions[CURLOPT_HTTPHEADER][] = 'Module-Version: '.'Midtrans Online Installment-v'.$plugin_info['version'];
     \Midtrans\Config::$curlOptions[CURLOPT_HTTPHEADER][] = 'PHP-Version: '.phpversion();
 
     $params = $this->buildTransactionParams($order, $configuration, $form);
     if (!$configuration['enable_redirect']){
       try {
-        // Redirect to Midtrans SNAP PopUp page.
-        $snap_token = \Midtrans\Snap::getSnapToken($params);
+        $snap_token = $order->getData('snap_token');
+        if (empty($snap_token)) {
+          // Redirect to Midtrans SNAP PopUp page.
+          $snap_token = \Midtrans\Snap::getSnapToken($params);
+
+          // add token to order metadata, so when user refresh payment page, can use same token
+          $order->setData('snap_token', $snap_token);
+          $order->save();
+        }
       }
       catch (Exception $e) {
         $message = 'Unable to pay via Midtrans. Please contact the website owner to get detail, thank you.';
