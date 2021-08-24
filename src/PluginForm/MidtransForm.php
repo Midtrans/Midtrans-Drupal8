@@ -23,17 +23,13 @@ class MidtransForm extends BasePaymentOffsiteForm {
     $configuration = $payment_gateway_plugin->getConfiguration();
 
     if (version_compare(\Drupal::VERSION, "9.0.0", ">=")) {
-      $info = \Drupal::service('extension.list.module')->getExtensionInfo('commerce_midtrans');
+      $plugin_info = \Drupal::service('extension.list.module')->getExtensionInfo('commerce_midtrans');
+      $commerce_info = \Drupal::service('extension.list.module')->getExtensionInfo('commerce');
     }
     else {
-      $info = system_get_info('module','commerce_midtrans');
+      $plugin_info = system_get_info('module','commerce_midtrans');
+      $commerce_info = system_get_info('module','commerce');
     }
-
-    $snap_script_url = ($gateway_mode == 'production') ? "https://app.midtrans.com/snap/snap.js" : "https://app.sandbox.midtrans.com/snap/snap.js";
-    \Midtrans\Config::$isProduction = ($gateway_mode == 'production') ? TRUE : FALSE;
-    \Midtrans\Config::$serverKey = $configuration['server_key'];
-    \Midtrans\Config::$is3ds = ($configuration['enable_3ds'] == 1) ? TRUE : FALSE;
-    $mixpanel_key = ($gateway_mode == 'production') ? "17253088ed3a39b1e2bd2cbcfeca939a" : "9dcba9b440c831d517e8ff1beff40bd9";
 
     // set remote id for payment
     $order_id = $order->id();
@@ -51,6 +47,14 @@ class MidtransForm extends BasePaymentOffsiteForm {
         $response->send();
       }
     }
+
+    \Midtrans\Config::$is3ds = ($configuration['enable_3ds']) ? TRUE : FALSE;
+    \Midtrans\Config::$serverKey = $configuration['server_key'];
+    \Midtrans\Config::$isProduction = ($gateway_mode == 'production') ? TRUE : FALSE;
+    \Midtrans\Config::$curlOptions[CURLOPT_HTTPHEADER][] = 'Drupal-Version: '.\Drupal::VERSION;
+    \Midtrans\Config::$curlOptions[CURLOPT_HTTPHEADER][] = 'Commerce-Version: '.$commerce_info['version'];
+    \Midtrans\Config::$curlOptions[CURLOPT_HTTPHEADER][] = 'Module-Version: '.'Midtrans Online Payment-v'.$plugin_info['version'];
+    \Midtrans\Config::$curlOptions[CURLOPT_HTTPHEADER][] = 'PHP-Version: '.phpversion();
 
     $params = $this->buildTransactionParams($order, $configuration, $form);
     if (!$configuration['enable_redirect']){
@@ -82,6 +86,9 @@ class MidtransForm extends BasePaymentOffsiteForm {
       }
     }
 
+    $env = ($gateway_mode == 'production') ? 'app' : 'app.sandbox';
+    $snap_script_url = 'https://'. $env .'.midtrans.com/snap/snap.js';
+    $mixpanel_key = ($gateway_mode == 'production') ? "17253088ed3a39b1e2bd2cbcfeca939a" : "9dcba9b440c831d517e8ff1beff40bd9";
 
     $js_settings = [
       'data' => [
@@ -92,7 +99,7 @@ class MidtransForm extends BasePaymentOffsiteForm {
         'cmsName' => 'Drupal',
         'cmsVersion' => \Drupal::VERSION,
         'pluginName' => 'Midtrans Online Payment',
-        'pluginVersion' => $info['version'],
+        'pluginVersion' => $plugin_info['version'],
         'mixpanelKey' => $mixpanel_key,
         'returnUrl' => $form['#return_url'],
         'cancelUrl' => $form['#cancel_url']
