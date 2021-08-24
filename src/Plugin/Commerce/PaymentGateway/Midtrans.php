@@ -12,7 +12,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Drupal\commerce_payment\Controller;
 use Drupal\commerce_payment;
-require_once(dirname(dirname(__DIR__)) . '../../../lib/midtrans/Midtrans.php');
 
 /**
  * Provides the Midtrans Checkout payment gateway.
