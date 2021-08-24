@@ -158,15 +158,15 @@ class Midtrans extends OffsitePaymentGatewayBase{
     }
   }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function loadPaymentByOrderId($order_id) {
-        /** @var \Drupal\commerce_payment\PaymentStorage $storage */
-        $storage = $this->entityTypeManager->getStorage('commerce_payment');
-        $payment_by_order_id = $storage->loadByProperties(['remote_id' => $order_id]);
-        return reset($payment_by_order_id);
-    }
+  /**
+   * {@inheritdoc}
+   */
+  protected function loadPaymentByOrderId($order_id) {
+    /** @var \Drupal\commerce_payment\PaymentStorage $storage */
+    $storage = $this->entityTypeManager->getStorage('commerce_payment');
+    $payment_by_order_id = $storage->loadByProperties(['order_id' => $order_id]);
+    return reset($payment_by_order_id);
+  }
 
   /**
    * {@inheritdoc}
@@ -206,6 +206,10 @@ class Midtrans extends OffsitePaymentGatewayBase{
     $response = new \Midtrans\Notification();
 
     $payment = $this->loadPaymentByOrderId($response->order_id);
+
+    // change payment remote id with transaction id
+    $payment->setRemoteId($response->transaction_id);
+    $payment->save();
 
     $message = 'orderID '.$response->order_id.' - '.$response->payment_type.' - '.$response->transaction_status;
     \Drupal::logger('commerce_midtrans')->info($message);
