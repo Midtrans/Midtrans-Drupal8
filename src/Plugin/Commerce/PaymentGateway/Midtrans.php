@@ -181,6 +181,9 @@ class Midtrans extends OffsitePaymentGatewayBase{
 
     $payment = $this->loadPaymentByOrderId($response->order_id);
 
+    $message = 'orderID '.$response->order_id.' - '.$response->payment_type.' - '.$response->transaction_status;
+    \Drupal::logger('commerce_midtrans')->info($message);
+
     if ($response->transaction_status == 'capture'){
         if ($response->fraud_status == 'accept'){
           $payment->setRemoteState($response->transaction_status);
