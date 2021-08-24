@@ -12,6 +12,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Drupal\commerce_payment\Controller;
 use Drupal\commerce_payment;
+require_once(dirname(dirname(__DIR__)) . '../../../lib/midtrans/Midtrans.php');
 
 /**
  * Provides the Midtrans Checkout payment gateway.
@@ -111,7 +112,7 @@ class Midtrans extends OffsitePaymentGatewayBase{
       '#description' => $this->t('This will allow you to set custom fields that will be displayed on Midtrans dashboard. Up to 3 fields are available, separate by coma (,)<br>Example: Order from web, Processed'),
     ];
 
-    return $form; 
+    return $form;
   }
 
   /**
@@ -119,7 +120,7 @@ class Midtrans extends OffsitePaymentGatewayBase{
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     parent::submitConfigurationForm($form, $form_state);
-    if (!$form_state->getErrors()) {    
+    if (!$form_state->getErrors()) {
       $values = $form_state->getValue($form['#parents']);
       $this->configuration['merchant_id'] = $values['merchant_id'];
       $this->configuration['server_key'] = $values['server_key'];
@@ -128,7 +129,7 @@ class Midtrans extends OffsitePaymentGatewayBase{
       $this->configuration['enable_redirect'] = $values['enable_redirect'];
       $this->configuration['enable_savecard'] = $values['enable_savecard'];
       $this->configuration['custom_expiry'] = $values['custom_expiry'];
-      $this->configuration['custom_field'] = $values['custom_field'];    
+      $this->configuration['custom_field'] = $values['custom_field'];
     }
   }
 
@@ -158,16 +159,16 @@ class Midtrans extends OffsitePaymentGatewayBase{
             $this->t('Please complete your payment as instructed <a href="' . $pdf . '" target="_blank">here.</a>'));
         }
         else{
-          $this->messenger()->addMessage($this->t('Please complete your payment')); 
+          $this->messenger()->addMessage($this->t('Please complete your payment'));
         }
       }
       else{
-        $this->messenger()->addMessage($this->t('Thank you for your payment.')); 
+        $this->messenger()->addMessage($this->t('Thank you for your payment.'));
       }
     }
 
     else{
-      $this->messenger()->addMessage($this->t('Thank you for your payment.')); 
+      $this->messenger()->addMessage($this->t('Thank you for your payment.'));
     }
   }
 
@@ -184,8 +185,8 @@ class Midtrans extends OffsitePaymentGatewayBase{
     //$payment = $payment_storage->loadByRemoteId($response->order_id);
     /** @var \Drupal\commerce_order\Entity\Order $order */
     //$order = $payment->getOrder();
-    
-    //error_log('Response from Midtrans : '. print_r($response, TRUE)); //debugan  
+
+    //error_log('Response from Midtrans : '. print_r($response, TRUE)); //debugan
     $payment = $this->loadPaymentByOrderId($response->order_id);
 
     if ($response->transaction_status == 'capture'){
@@ -197,24 +198,24 @@ class Midtrans extends OffsitePaymentGatewayBase{
         else if ($response->fraud_status == 'challenge'){
           $payment->setRemoteState($response->transaction_status);
           $payment->setState('challenge');
-          $payment->save();        
+          $payment->save();
         }
     }
     else if ($response->transaction_status == 'cancel'){
       $payment->setRemoteState($response->transaction_status);
       $payment->setState('cancelled');
-      $payment->save(); 
+      $payment->save();
     }
     else if ($response->transaction_status == 'expire'){
       $payment->setRemoteState($response->transaction_status);
       $payment->setState('cancelled');
-      $payment->save(); 
-    }    
+      $payment->save();
+    }
     else if ($response->transaction_status == 'deny'){
       $payment->setRemoteState($response->transaction_status);
       $payment->setState('failed');
-      $payment->save(); 
-    }    
+      $payment->save();
+    }
     else if ($response->transaction_status == 'pending'){
       $payment->setRemoteState($response->transaction_status);
       $payment->setState('pending');
@@ -223,8 +224,8 @@ class Midtrans extends OffsitePaymentGatewayBase{
     else if ($response->transaction_status == 'settlement'){
       $payment->setRemoteState($response->transaction_status);
       $payment->setState('complete');
-      $payment->save(); 
-    }    
+      $payment->save();
+    }
   }
 
   /**
@@ -248,6 +249,6 @@ class Midtrans extends OffsitePaymentGatewayBase{
   //   // error_log(print_r( $payment->getOrder()->id(),TRUE));
 
   //   return $instructions;
-  // }  
+  // }
 }
 ?>
