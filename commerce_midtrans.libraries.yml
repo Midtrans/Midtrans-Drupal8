@@ -1,3 +1,13 @@
+adminmodule:
+  version: VERSION
+  js:
+    js/midtrans.admin.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupal
+    - core/drupalSettings
+
 checkout:
   version: VERSION
   js:

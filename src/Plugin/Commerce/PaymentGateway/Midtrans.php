@@ -57,23 +57,23 @@ class Midtrans extends OffsitePaymentGatewayBase{
     $form['merchant_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Merchant ID'),
-      '#description' => $this->t('Input your Midtrans Merchant ID (e.g M012345). Get the ID <a href="https://dashboard.sandbox.midtrans.com/settings/config_info" target="_blank">here</a>'),
+      '#description' => $this->t('Input your Midtrans Merchant ID (e.g M012345). Get the ID <a class="config_info" href="#" target="_blank">here</a>'),
       '#default_value' => $this->configuration['merchant_id'],
       '#required' => TRUE,
     ];
 
     $form['server_key'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Server key'),
-      '#description' => $this->t('Input your Midtrans Server Key. Get the key <a href="https://dashboard.sandbox.midtrans.com/settings/config_info" >here</a> for Sandbox and <a href="https://dashboard.midtrans.com/settings/config_info">here</a> for Production.'),
+      '#title' => $this->t('Server Key'),
+      '#description' => $this->t('Input your Midtrans Server Key. Get the key <a class="config_info" href="#" target="_blank">here</a>'),
       '#default_value' => $this->configuration['server_key'],
       '#required' => TRUE,
     ];
 
     $form['client_key'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Client key'),
-      '#description' => $this->t('Input your Midtrans Client Key. Get the key <a href="https://dashboard.sandbox.midtrans.com/settings/config_info" >here</a> for Sandbox and <a href="https://dashboard.midtrans.com/settings/config_info">here</a> for Production.'),
+      '#title' => $this->t('Client Key'),
+      '#description' => $this->t('Input your Midtrans Client Key. Get the key <a class="config_info" href="#" target="_blank">here</a>'),
       '#default_value' => $this->configuration['client_key'],
       '#required' => TRUE,
     ];
@@ -127,6 +127,13 @@ class Midtrans extends OffsitePaymentGatewayBase{
       '#type' => 'hidden',
       '#value' => \Drupal::request()->getSchemeAndHttpHost().base_path().'payment/notify/midtrans',
     ];
+
+    $form['midtrans_admin_module'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#attributes' => ['id' => 'midtrans-admin-module'],
+    ];
+    $form['#attached']['library'][] = 'commerce_midtrans/adminmodule';
 
     return $form;
   }
