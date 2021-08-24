@@ -1,0 +1,9 @@
+checkout:
+  version: VERSION
+  js:
+    js/midtrans.checkout.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupal
+    - core/drupalSettings
