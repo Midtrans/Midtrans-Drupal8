@@ -51,6 +51,7 @@ class MidtransForm extends BasePaymentOffsiteForm {
     \Midtrans\Config::$is3ds = ($configuration['enable_3ds']) ? TRUE : FALSE;
     \Midtrans\Config::$serverKey = $configuration['server_key'];
     \Midtrans\Config::$isProduction = ($gateway_mode == 'production') ? TRUE : FALSE;
+    \Midtrans\Config::$overrideNotifUrl = ($configuration['enable_override_notification']) ? $configuration['notification_url'] : FALSE;
     \Midtrans\Config::$curlOptions[CURLOPT_HTTPHEADER][] = 'Drupal-Version: '.\Drupal::VERSION;
     \Midtrans\Config::$curlOptions[CURLOPT_HTTPHEADER][] = 'Commerce-Version: '.$commerce_info['version'];
     \Midtrans\Config::$curlOptions[CURLOPT_HTTPHEADER][] = 'Module-Version: '.'Midtrans Online Payment-v'.$plugin_info['version'];
