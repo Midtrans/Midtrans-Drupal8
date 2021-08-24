@@ -103,7 +103,7 @@ class Midtrans extends OffsitePaymentGatewayBase{
       '#type' => 'textfield',
       '#title' => $this->t('Custom Expiry'),
       '#default_value' => $this->configuration['custom_expiry'],
-      '#description' => $this->t('This will allow you to set custom duration on how long the transaction available to be paid.<br>example: 45 minutes'),
+      '#description' => $this->t('This will allow you to set custom duration on how long the transaction available to be paid.<br>Options: <code>days, hours, minutes</code><br>Example: 5 minutes'),
     ];
 
     $form['custom_field'] = [
