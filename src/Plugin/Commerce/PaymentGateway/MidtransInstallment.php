@@ -227,7 +227,7 @@ class MidtransInstallment extends InstallmentGatewayBase {
         'order_id' => $response->order_id,
         'transaction_id' => $response->transaction_id,
         'transaction_status' => ucwords($response->transaction_status),
-        'payment_type' => $this->detailPaymentType($response)
+        'payment_type' => $payment_type
       );
       $order_activity = \Drupal::entityTypeManager()->getStorage('commerce_log');
       $order_activity->generate($order, 'commerce_midtrans_notification', $notif_params)->save();
