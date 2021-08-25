@@ -184,22 +184,39 @@ class MidtransOfflineInstallment extends OfflineInstallmentGatewayBase {
     }
   }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function loadPaymentByOrderId2($order_id) {
-        /** @var \Drupal\commerce_payment\PaymentStorage $storage */
-        $storage = $this->entityTypeManager->getStorage('commerce_payment');
-        $payment_by_order_id = $storage->loadByProperties(['remote_id' => $order_id]);
-        return reset($payment_by_order_id);
-    }
+  /**
+   * {@inheritdoc}
+   */
+  protected function loadPaymentByOrderId($order_id) {
+    /** @var \Drupal\commerce_payment\PaymentStorage $storage */
+    $storage = $this->entityTypeManager->getStorage('commerce_payment');
+    $payment_by_order_id = $storage->loadByProperties(['order_id' => $order_id]);
+    return reset($payment_by_order_id);
+  }
+
+  protected function midtransConfig() {
+    \Midtrans\Config::$serverKey =  $this->getConfiguration()['server_key'];
+    \Midtrans\Config::$isProduction = ($this->getMode() == 'production') ? TRUE : FALSE;
+  }
 
   /**
    * {@inheritdoc}
    */
   public function onReturn(OrderInterface $order, Request $request) {
-    // $logger = \Drupal::logger('commerce_midtrans');
-    drupal_set_message('Thank you for placing your order');
+    $this->midtransConfig();
+    $payment = $this->loadPaymentByOrderId($order->id());
+    $response = \Midtrans\Transaction::status($payment->getRemoteId());
+
+    $installment = isset($response->installment_term) ? ' - Installment: '.$response->installment_term. ' Months' : '';
+    $payment_type = ucwords($response->card_type).' Card - Mask Card: '.$response->masked_card.$installment;
+
+    $message = '<p><strong>Here is the detail payment from Midtrans</strong><br />';
+    $message .= 'Order ID: '.$response->order_id.'<br>';
+    $message .= 'Transaction ID: '.$response->transaction_id.'<br>';
+    $message .= 'Transaction Status: '.ucwords($response->transaction_status).'<br>';
+    $message .= 'Payment Type: '.$payment_type.'<br>';
+
+    $this->messenger()->addMessage($this->t($message));
   }
 
   /**
