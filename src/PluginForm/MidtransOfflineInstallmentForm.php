@@ -53,8 +53,17 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
     $params = $this->buildTransactionParams($order, $configuration, $form);
     if (!$configuration['enable_redirect']){
       try {
-        // Redirect to Midtrans SNAP PopUp page.
-        $snap_token = \Midtrans\Snap::getSnapToken($params);
+        // add token to order metadata, so when user refresh payment page, can use same token
+        // only available for cc transaction
+        // because when use in snap fullpayment (multiple payment method)
+        // order automatically completed when got pending notification
+        $snap_token = $order->getData('snap_token');
+        if (empty($snap_token)) {
+          // Redirect to Midtrans SNAP PopUp page.
+          $snap_token = \Midtrans\Snap::getSnapToken($params);
+          $order->setData('snap_token', $snap_token);
+          $order->save();
+        }
       }
       catch (Exception $e) {
         $message = 'Unable to pay via Midtrans. Please contact the website owner to get detail, thank you.';
