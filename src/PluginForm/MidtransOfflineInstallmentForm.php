@@ -56,10 +56,12 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
         // Redirect to Midtrans SNAP PopUp page.
         $snap_token = \Midtrans\Snap::getSnapToken($params);
       }
-
       catch (Exception $e) {
-        drupal_set_message($e->getMessage(), 'error');
-        error_log($e->getMessage());
+        $message = 'Unable to pay via Midtrans. Please contact the website owner to get detail, thank you.';
+        \Drupal::messenger()->addWarning($message);
+        \Drupal::logger('commerce_midtrans')->error($e->getMessage());
+        $response = new RedirectResponse($form['#cancel_url']);
+        $response->send();
       }
     }
     else{
@@ -69,10 +71,12 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
         $response = new RedirectResponse($redirect_url);
         $response->send();
       }
-
       catch (Exception $e) {
-        drupal_set_message($e->getMessage(), 'error');
-        error_log($e->getMessage());
+        $message = 'Unable to pay via Midtrans. Please contact the website owner to get detail, thank you.';
+        \Drupal::messenger()->addWarning($message);
+        \Drupal::logger('commerce_midtrans')->error($e->getMessage());
+        $response = new RedirectResponse($form['#cancel_url']);
+        $response->send();
       }
     }
 
