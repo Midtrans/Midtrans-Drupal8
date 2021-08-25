@@ -288,18 +288,24 @@ class MidtransPromo extends OffsitePaymentGatewayBase {
    * {@inheritdoc}
    */
   public function onNotify(Request $request) {
-    \Midtrans\Config::$serverKey =  $this->getConfiguration()['server_key'];
-    \Midtrans\Config::$isProduction = ($this->getMode() == 'production') ? TRUE : FALSE;
-    $response = new \Midtrans\Notification();
-    /** @var \Drupal\commerce_payment\PaymentStorage $payment_storage */
-    $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
-    /** @var \Drupal\commerce_payment\Entity\Payment $payment */
-    //$payment = $payment_storage->loadByRemoteId($response->order_id);
-    /** @var \Drupal\commerce_order\Entity\Order $order */
-    //$order = $payment->getOrder();
-
-    //error_log('Response from Midtrans : '. print_r($response, TRUE)); //debugan
+    $this->midtransConfig();
+    $notification = new \Midtrans\Notification();
+    $response = $notification->getResponse();
     $payment = $this->loadPaymentByOrderId($response->order_id);
+
+    $message = 'orderID '.$response->order_id.' - '.$response->payment_type.' - '.$response->transaction_status;
+    \Drupal::logger('commerce_midtrans')->info($message);
+
+    if (\Drupal::moduleHandler()->moduleExists('commerce_log')) {
+      $notif_params = array(
+        'order_id' => $response->order_id,
+        'transaction_id' => $response->transaction_id,
+        'transaction_status' => ucwords($response->transaction_status),
+        'payment_type' => $this->detailPaymentType($response)
+      );
+      $order_activity = \Drupal::entityTypeManager()->getStorage('commerce_log');
+      $order_activity->generate($order, 'commerce_midtrans_notification', $notif_params)->save();
+    }
 
     if ($response->transaction_status == 'capture'){
         if ($response->fraud_status == 'accept'){
