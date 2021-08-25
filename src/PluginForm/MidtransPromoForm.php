@@ -35,117 +35,12 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
       $commerce_info = system_get_info('module','commerce');
     }
 
-    $items = [];
-    foreach ($order->getItems() as $order_item) {
-      $items[] = ([
-        'id' => $order_item->getPurchasedEntity()->getSku(),
-        'price' => intval($order_item->getUnitPrice()->getNumber()),
-        'quantity' => intval($order_item->getQuantity()),
-        'name' => $order_item->label(),
-      ]);
-    }
-
-    if($order->getTotalPrice()->getNumber() >= $configuration['min_amount']){
-      if ($configuration['discount_type'] == 'percentage'){
-        $total_discount = intval($total_item * $configuration['discount_amount'] / 100);
-      }
-      else{
-        $total_discount = $configuration['discount_amount'];
-      }
-
-      if($total_discount >= $configuration['max_discount']){
-        $total_discount = -($configuration['max_discount']);
-      }
-      else{
-        $total_discount = -($total_discount);
-      }
-
-      $order->addAdjustment(new Adjustment([
-        'type' => 'promotion',
-        'label' => t('Midtrans Promo Payment'),
-        'amount' => new Price($total_discount, 'IDR'),
-        // 'percentage' => $this->getPercentage(),
-        'source_id' => 'midtranspromo',
-      ]));
-      $order->setRefreshState(OrderInterface::REFRESH_SKIP);
-      $order->save();
-    }
-
-    $adjustment = $order->collectAdjustments();
-    // error_log(print_r($adjustment,true)); //debugan
-    if ($adjustment){
-    $array_keys = array_keys($adjustment);
-      foreach($array_keys as $key){
-        if ($adjustment[$key]->getType() != 'tax'){
-          $items[] = ([
-            'id' => $adjustment[$key]->getType(),
-            'price' => intval($adjustment[$key]->getAmount()->getNumber()),
-            'quantity' => 1,
-            'name' => $adjustment[$key]->getLabel(),
-          ]);
-        }
-      }
-    }
-
-    /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $billingAddress */
-    $CustomerDetails = $order->getBillingProfile()->get('address')->first();
-
     $snap_script_url = ($gateway_mode == 'production') ? "https://app.midtrans.com/snap/snap.js" : "https://app.sandbox.midtrans.com/snap/snap.js";
     \Midtrans\Config::$isProduction = ($gateway_mode == 'production') ? TRUE : FALSE;
     \Midtrans\Config::$serverKey = $configuration['server_key'];
     \Midtrans\Config::$is3ds = ($configuration['enable_3ds'] == 1) ? TRUE : FALSE;
     $mixpanel_key = ($gateway_mode == 'production') ? "17253088ed3a39b1e2bd2cbcfeca939a" : "9dcba9b440c831d517e8ff1beff40bd9";
 
-    $params = array(
-      'transaction_details' => array(
-        'order_id' => $payment->getOrder()->id(),
-        'gross_amount' => intval($order->getTotalPrice()->getNumber()),
-      ),
-      'item_details' => $items,
-      'customer_details' => array(
-        'first_name' => $CustomerDetails->getGivenName(),
-        'last_name' => $CustomerDetails->getFamilyName(),
-        'email' => $order->getEmail(),
-        //'phone' => ,
-        'billing_address' => array(
-          'first_name' => $CustomerDetails->getGivenName(),
-          'last_name' => $CustomerDetails->getFamilyName(),
-          'address' => $CustomerDetails->getAddressLine1() . ' ' . $CustomerDetails->getAddressLine2(),
-          //'country_code' => $CustomerDetails->getCountryCode(),
-          'city' => $CustomerDetails->getLocality(),
-          'postal_code' => $CustomerDetails->getPostalCode(),
-          'country' => $CustomerDetails->getCountryCode(),
-          //'phone' => ,
-        ),
-      ),
-      'callbacks' => array(
-        'finish' => $form['#return_url'],
-        'error' => $form['#cancel_url'],
-      ),
-    );
-    // add savecard params
-    if ($configuration['enable_savecard']){
-      $params['user_id'] = crypt( $order->getEmail() , \Midtrans\Config::$serverKey );
-      $params['credit_card']['save_card'] = true;
-    }
-
-    //add custom expiry params
-    $custom_expiry_params = explode(" ",$configuration['custom_expiry']);
-      if ( !empty($custom_expiry_params[1]) && !empty($custom_expiry_params[0]) ){
-          $params['expiry'] = array(
-            'unit' => $custom_expiry_params[1],
-            'duration'  => (int)$custom_expiry_params[0],
-          );
-        };
-
-    //add custom fields params
-    $custom_fields_params = explode(", ",$configuration['custom_field']);
-      if ( !empty($custom_fields_params[0]) ){
-          $params['custom_field1'] = $custom_fields_params[0];
-          $params['custom_field2'] = !empty($custom_fields_params[1]) ? $custom_fields_params[1] : null;
-          $params['custom_field3'] = !empty($custom_fields_params[2]) ? $custom_fields_params[2] : null;
-      };
-    // error_log(print_r($params, TRUE)); //debugan
     // set remote id for payment
     $order_id = $order->id();
     $payments = \Drupal::entityTypeManager() ->getStorage('commerce_payment') ->loadByProperties([ 'order_id' => [$order_id], ]);
@@ -155,6 +50,7 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
       $payment->save();
     }
 
+    $params = $this->buildTransactionParams($order, $configuration, $form);
     if (!$configuration['enable_redirect']){
       try {
         // Redirect to Midtrans SNAP PopUp page.
@@ -212,4 +108,122 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
     return $form;
   }
 
+  private function buildTransactionParams($order, $configuration, $form) {
+    $items = [];
+    $total_item = 0;
+    foreach ($order->getItems() as $order_item) {
+      $items[] = ([
+        'id' => $order_item->getPurchasedEntity()->getSku(),
+        'price' => intval($order_item->getUnitPrice()->getNumber()),
+        'quantity' => intval($order_item->getQuantity()),
+        'name' => $order_item->label(),
+      ]);
+      $total_item += intval($order_item->getUnitPrice()->getNumber()) * intval($order_item->getQuantity());
+    }
+
+    if($order->getTotalPrice()->getNumber() >= $configuration['min_amount']){
+      if ($configuration['discount_type'] == 'percentage'){
+        $total_discount = intval($total_item * $configuration['discount_amount'] / 100);
+      }
+      else{
+        $total_discount = $configuration['discount_amount'];
+      }
+
+      if($total_discount >= $configuration['max_discount']){
+        $total_discount = -($configuration['max_discount']);
+      }
+      else{
+        $total_discount = -($total_discount);
+      }
+
+      $order->addAdjustment(new Adjustment([
+        'type' => 'promotion',
+        'label' => t('Midtrans Promo Payment'),
+        'amount' => new Price($total_discount, 'IDR'),
+        'source_id' => 'midtranspromo',
+      ]));
+      $order->setRefreshState(OrderInterface::REFRESH_SKIP);
+      $order->save();
+    }
+
+    $adjustment = $order->collectAdjustments();
+    if ($adjustment){
+    $array_keys = array_keys($adjustment);
+      foreach($array_keys as $key){
+        if ($adjustment[$key]->getType() != 'tax'){
+          $items[] = ([
+            'id' => $adjustment[$key]->getType(),
+            'price' => intval($adjustment[$key]->getAmount()->getNumber()),
+            'quantity' => 1,
+            'name' => $adjustment[$key]->getLabel(),
+          ]);
+        }
+      }
+    }
+
+    $customer_details = $order->getBillingProfile()->get('address')->first();
+    $params = array(
+      'transaction_details' => array(
+        'order_id' => $order->id(),
+        'gross_amount' => intval($order->getTotalPrice()->getNumber()),
+      ),
+      'item_details' => $items,
+      'customer_details' => array(
+        'first_name' => $customer_details->getGivenName(),
+        'last_name' => $customer_details->getFamilyName(),
+        'email' => $order->getEmail(),
+        //'phone' => ,
+        'billing_address' => array(
+          'first_name' => $customer_details->getGivenName(),
+          'last_name' => $customer_details->getFamilyName(),
+          'address' => $customer_details->getAddressLine1() . ' ' . $customer_details->getAddressLine2(),
+          'city' => $customer_details->getLocality(),
+          'postal_code' => $customer_details->getPostalCode(),
+          'country' => $customer_details->getCountryCode(),
+          //'phone' => ,
+        ),
+      ),
+      'callbacks' => array(
+        'finish' => $form['#return_url'],
+        'error' => $form['#cancel_url'],
+      ),
+    );
+
+    // add enabled_payments
+    if (strlen($configuration['method_enabled']) > 0){
+      $enabled_payments = explode(',', $configuration['method_enabled']);
+      $params['enabled_payments'] = $enabled_payments;
+    }
+
+    // add bin params
+    if (strlen($configuration['bin_number']) > 0){
+      $bins = explode(',', $configuration['bin_number']);
+      $params['credit_card']['whitelist_bins'] = $bins;
+    }
+
+    // add savecard params
+    if ($configuration['enable_savecard']){
+      $params['user_id'] = crypt( $order->getEmail(), \Midtrans\Config::$serverKey);
+      $params['credit_card']['save_card'] = true;
+    }
+
+    //add custom expiry params
+    $custom_expiry_params = explode(" ",$configuration['custom_expiry']);
+    if ( !empty($custom_expiry_params[1]) && !empty($custom_expiry_params[0]) ){
+      $params['expiry'] = array(
+        'unit' => $custom_expiry_params[1],
+        'duration'  => (int)$custom_expiry_params[0],
+      );
+    };
+
+    //add custom fields params
+    $custom_fields_params = explode(", ",$configuration['custom_field']);
+    if ( !empty($custom_fields_params[0]) ){
+      $params['custom_field1'] = $custom_fields_params[0];
+      $params['custom_field2'] = !empty($custom_fields_params[1]) ? $custom_fields_params[1] : null;
+      $params['custom_field3'] = !empty($custom_fields_params[2]) ? $custom_fields_params[2] : null;
+    };
+
+    return $params;
+  }
 }
