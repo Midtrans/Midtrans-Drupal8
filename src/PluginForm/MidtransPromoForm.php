@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\commerce_midtrans\PluginForm;
+
 use Drupal\commerce_payment\PluginForm\PaymentOffsiteForm as BasePaymentPromoOffsiteForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
@@ -10,7 +11,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\commerce_order\Adjustment;
 use Drupal\commerce_price\Price;
 use Drupal\commerce_order\Entity\OrderInterface;
-require_once(dirname(dirname(__DIR__)) . '/lib/midtrans/Midtrans.php');
 
 class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
 
@@ -23,9 +23,17 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
     $payment = $this->entity;
     $order = $payment->getOrder();
     $payment_gateway_plugin = $payment->getPaymentGateway()->getPlugin();
-    $gateway_mode = $payment_gateway_plugin->getMode();    
+    $gateway_mode = $payment_gateway_plugin->getMode();
     $configuration = $payment_gateway_plugin->getConfiguration();
-    $info = system_get_info('module','commerce_midtrans');
+
+    if (version_compare(\Drupal::VERSION, "9.0.0", ">=")) {
+      $plugin_info = \Drupal::service('extension.list.module')->getExtensionInfo('commerce_midtrans');
+      $commerce_info = \Drupal::service('extension.list.module')->getExtensionInfo('commerce');
+    }
+    else {
+      $plugin_info = system_get_info('module','commerce_midtrans');
+      $commerce_info = system_get_info('module','commerce');
+    }
 
     $items = [];
     foreach ($order->getItems() as $order_item) {
@@ -33,11 +41,11 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
         'id' => $order_item->getPurchasedEntity()->getSku(),
         'price' => intval($order_item->getUnitPrice()->getNumber()),
         'quantity' => intval($order_item->getQuantity()),
-        'name' => $order_item->label(),        
+        'name' => $order_item->label(),
       ]);
       $total_item = $total_item + (intval($order_item->getUnitPrice()->getNumber()) * intval($order_item->getQuantity()));
     }
-    
+
     if($order->getTotalPrice()->getNumber() >= $configuration['min_amount']){
       if ($configuration['discount_type'] == 'percentage'){
         $total_discount = intval($total_item * $configuration['discount_amount'] / 100);
@@ -72,17 +80,17 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
         if ($adjustment[$key]->getType() != 'tax'){
           $items[] = ([
             'id' => $adjustment[$key]->getType(),
-            'price' => intval($adjustment[$key]->getAmount()->getNumber()),            
-            'quantity' => 1,  
+            'price' => intval($adjustment[$key]->getAmount()->getNumber()),
+            'quantity' => 1,
             'name' => $adjustment[$key]->getLabel(),
           ]);
         }
-      }  
+      }
     }
 
     /** @var \Drupal\address\Plugin\Field\FieldType\AddressItem $billingAddress */
     $CustomerDetails = $order->getBillingProfile()->get('address')->first();
-    
+
     $snap_script_url = ($gateway_mode == 'production') ? "https://app.midtrans.com/snap/snap.js" : "https://app.sandbox.midtrans.com/snap/snap.js";
     \Midtrans\Config::$isProduction = ($gateway_mode == 'production') ? TRUE : FALSE;
     \Midtrans\Config::$serverKey = $configuration['server_key'];
@@ -104,7 +112,7 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
           'first_name' => $CustomerDetails->getGivenName(),
           'last_name' => $CustomerDetails->getFamilyName(),
           'address' => $CustomerDetails->getAddressLine1() . ' ' . $CustomerDetails->getAddressLine2(),
-          //'country_code' => $CustomerDetails->getCountryCode(),          
+          //'country_code' => $CustomerDetails->getCountryCode(),
           'city' => $CustomerDetails->getLocality(),
           'postal_code' => $CustomerDetails->getPostalCode(),
           'country' => $CustomerDetails->getCountryCode(),
@@ -121,12 +129,12 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
       $params['user_id'] = crypt( $order->getEmail() , \Midtrans\Config::$serverKey );
       $params['credit_card']['save_card'] = true;
     }
-     
+
     //add custom expiry params
     $custom_expiry_params = explode(" ",$configuration['custom_expiry']);
       if ( !empty($custom_expiry_params[1]) && !empty($custom_expiry_params[0]) ){
           $params['expiry'] = array(
-            'unit' => $custom_expiry_params[1], 
+            'unit' => $custom_expiry_params[1],
             'duration'  => (int)$custom_expiry_params[0],
           );
         };
@@ -138,15 +146,15 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
           $params['custom_field2'] = !empty($custom_fields_params[1]) ? $custom_fields_params[1] : null;
           $params['custom_field3'] = !empty($custom_fields_params[2]) ? $custom_fields_params[2] : null;
       };
-    // error_log(print_r($params, TRUE)); //debugan    
+    // error_log(print_r($params, TRUE)); //debugan
     // set remote id for payment
     $order_id = $order->id();
     $payments = \Drupal::entityTypeManager() ->getStorage('commerce_payment') ->loadByProperties([ 'order_id' => [$order_id], ]);
     if (!$payments){
       $payment->setRemoteId($order_id);
       $payment->setAmount(new Price($order->getTotalPrice()->getNumber(), 'IDR'));
-      $payment->save();   
-    }   
+      $payment->save();
+    }
 
     if (!$configuration['enable_redirect']){
       $snapToken = \Midtrans\Snap::getSnapToken($params);
@@ -154,8 +162,8 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
       // Redirect to Midtrans SNAP PopUp page.
       ?>
         <!-- start Mixpanel -->
-        <script type="text/javascript">(function(c,a){if(!a.__SV){var b=window;try{var d,m,j,k=b.location,f=k.hash;d=function(a,b){return(m=a.match(RegExp(b+"=([^&]*)")))?m[1]:null};f&&d(f,"state")&&(j=JSON.parse(decodeURIComponent(d(f,"state"))),"mpeditor"===j.action&&(b.sessionStorage.setItem("_mpcehash",f),history.replaceState(j.desiredHash||"",c.title,k.pathname+k.search)))}catch(n){}var l,h;window.mixpanel=a;a._i=[];a.init=function(b,d,g){function c(b,i){var a=i.split(".");2==a.length&&(b=b[a[0]],i=a[1]);b[i]=function(){b.push([i].concat(Array.prototype.slice.call(arguments,0)))}}var e=a;"undefined"!==typeof g?e=a[g]=[]:g="mixpanel";e.people=e.people||[];e.toString=function(b){var a="mixpanel";"mixpanel"!==g&&(a+="."+g);b||(a+=" (stub)");return a};e.people.toString=function(){return e.toString(1)+".people (stub)"};l="disable time_event track track_pageview track_links track_forms track_with_groups add_group set_group remove_group register register_once alias unregister identify name_tag set_config reset opt_in_tracking opt_out_tracking has_opted_in_tracking has_opted_out_tracking clear_opt_in_out_tracking people.set people.set_once people.unset people.increment people.append people.union people.track_charge people.clear_charges people.delete_user people.remove".split(" ");for(h=0;h<l.length;h++)c(e,l[h]);var f="set set_once union unset remove delete".split(" ");e.get_group=function(){function a(c){b[c]=function(){call2_args=arguments;call2=[c].concat(Array.prototype.slice.call(call2_args,0));e.push([d,call2])}}for(var b={},d=["get_group"].concat(Array.prototype.slice.call(arguments,0)),c=0;c<f.length;c++)a(f[c]);return b};a._i.push([b,d,g])};a.__SV=1.2;b=c.createElement("script");b.type="text/javascript";b.async=!0;b.src="undefined"!==typeof MIXPANEL_CUSTOM_LIB_URL?MIXPANEL_CUSTOM_LIB_URL:"file:"===c.location.protocol&&"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//)?"https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js":"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";d=c.getElementsByTagName("script")[0];d.parentNode.insertBefore(b,d)}})(document,window.mixpanel||[]);mixpanel.init("<?php echo $mixpanel_key ?>");</script> 
-        <!-- end Mixpanel -->         
+        <script type="text/javascript">(function(c,a){if(!a.__SV){var b=window;try{var d,m,j,k=b.location,f=k.hash;d=function(a,b){return(m=a.match(RegExp(b+"=([^&]*)")))?m[1]:null};f&&d(f,"state")&&(j=JSON.parse(decodeURIComponent(d(f,"state"))),"mpeditor"===j.action&&(b.sessionStorage.setItem("_mpcehash",f),history.replaceState(j.desiredHash||"",c.title,k.pathname+k.search)))}catch(n){}var l,h;window.mixpanel=a;a._i=[];a.init=function(b,d,g){function c(b,i){var a=i.split(".");2==a.length&&(b=b[a[0]],i=a[1]);b[i]=function(){b.push([i].concat(Array.prototype.slice.call(arguments,0)))}}var e=a;"undefined"!==typeof g?e=a[g]=[]:g="mixpanel";e.people=e.people||[];e.toString=function(b){var a="mixpanel";"mixpanel"!==g&&(a+="."+g);b||(a+=" (stub)");return a};e.people.toString=function(){return e.toString(1)+".people (stub)"};l="disable time_event track track_pageview track_links track_forms track_with_groups add_group set_group remove_group register register_once alias unregister identify name_tag set_config reset opt_in_tracking opt_out_tracking has_opted_in_tracking has_opted_out_tracking clear_opt_in_out_tracking people.set people.set_once people.unset people.increment people.append people.union people.track_charge people.clear_charges people.delete_user people.remove".split(" ");for(h=0;h<l.length;h++)c(e,l[h]);var f="set set_once union unset remove delete".split(" ");e.get_group=function(){function a(c){b[c]=function(){call2_args=arguments;call2=[c].concat(Array.prototype.slice.call(call2_args,0));e.push([d,call2])}}for(var b={},d=["get_group"].concat(Array.prototype.slice.call(arguments,0)),c=0;c<f.length;c++)a(f[c]);return b};a._i.push([b,d,g])};a.__SV=1.2;b=c.createElement("script");b.type="text/javascript";b.async=!0;b.src="undefined"!==typeof MIXPANEL_CUSTOM_LIB_URL?MIXPANEL_CUSTOM_LIB_URL:"file:"===c.location.protocol&&"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//)?"https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js":"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";d=c.getElementsByTagName("script")[0];d.parentNode.insertBefore(b,d)}})(document,window.mixpanel||[]);mixpanel.init("<?php echo $mixpanel_key ?>");</script>
+        <!-- end Mixpanel -->
         <script src="<?php echo $snap_script_url;?>" data-client-key="<?php echo $configuration['client_key'];?>"></script>
         <script type="text/javascript">
           function MixpanelTrackResult(snap_token, merchant_id, cms_name, cms_version, plugin_name, plugin_version, status, result) {
@@ -197,26 +205,26 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
               onSuccess: function(result){
                 MixpanelTrackResult(MID_SNAP_TOKEN, MID_MERCHANT_ID, MID_CMS_NAME, MID_CMS_VERSION, MID_PLUGIN_NAME,MID_PLUGIN_VERSION, 'success', result);
                 window.location = '<?php echo $form['#return_url'];?>';
-              },       
+              },
               onPending: function(result){
                 MixpanelTrackResult(MID_SNAP_TOKEN, MID_MERCHANT_ID, MID_CMS_NAME, MID_CMS_VERSION, MID_PLUGIN_NAME, MID_PLUGIN_VERSION, 'pending', result);
                 window.location = '<?php echo $form['#return_url'];?>';
-              },       
+              },
               onError: function(result){
                 MixpanelTrackResult(MID_SNAP_TOKEN, MID_MERCHANT_ID, MID_CMS_NAME, MID_CMS_VERSION, MID_PLUGIN_NAME, MID_PLUGIN_VERSION, 'error', result);
                 window.location = "<?php echo $form['#cancel_url'];?>";
               },
               onClose: function(){
                 MixpanelTrackResult(MID_SNAP_TOKEN, MID_MERCHANT_ID, MID_CMS_NAME, MID_CMS_VERSION, MID_PLUGIN_NAME, MID_PLUGIN_VERSION, 'close', null);
-              }             
+              }
             });
             snapExecuted = true; // if SNAP popup executed, change flag to stop the retry.
           }
 
-          catch (e){ 
+          catch (e){
             retryCount++;
             if(retryCount >= 10){
-              location.reload(); 
+              location.reload();
               return;
             }
           console.log(e);
@@ -232,9 +240,9 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
         }, 1000);
 
         </script>
-      <?php  
+      <?php
       }
-      
+
       catch (Exception $e) {
         drupal_set_message($e->getMessage(), 'error');
         error_log($e->getMessage());
@@ -242,7 +250,7 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
     }
     else{
       try{
-        // Redirect to Midtrans SNAP Redirect page.      
+        // Redirect to Midtrans SNAP Redirect page.
         $redirect_url = \Midtrans\Snap::createTransaction($params)->redirect_url;
         $response = new RedirectResponse($redirect_url);
         $response->send();
@@ -253,7 +261,7 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
         error_log($e->getMessage());
       }
     }
-    $form = $this->buildRedirectForm($form, $form_state, '', $params, '');        
+    $form = $this->buildRedirectForm($form, $form_state, '', $params, '');
     return $form;
   }
 
