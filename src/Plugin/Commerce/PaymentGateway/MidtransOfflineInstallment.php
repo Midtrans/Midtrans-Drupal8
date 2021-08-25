@@ -194,7 +194,7 @@ class MidtransOfflineInstallment extends OfflineInstallmentGatewayBase {
     return reset($payment_by_order_id);
   }
 
-  protected function midtransConfig() {
+  protected function fetchAndSetMidtransApiCredentials() {
     \Midtrans\Config::$serverKey =  $this->getConfiguration()['server_key'];
     \Midtrans\Config::$isProduction = ($this->getMode() == 'production') ? TRUE : FALSE;
   }
@@ -203,7 +203,7 @@ class MidtransOfflineInstallment extends OfflineInstallmentGatewayBase {
    * {@inheritdoc}
    */
   public function onReturn(OrderInterface $order, Request $request) {
-    $this->midtransConfig();
+    $this->fetchAndSetMidtransApiCredentials();
     $payment = $this->loadPaymentByOrderId($order->id());
     $response = \Midtrans\Transaction::status($payment->getRemoteId());
 
@@ -234,7 +234,7 @@ class MidtransOfflineInstallment extends OfflineInstallmentGatewayBase {
    * {@inheritdoc}
    */
   public function onNotify(Request $request) {
-    $this->midtransConfig();
+    $this->fetchAndSetMidtransApiCredentials();
     $notification = new \Midtrans\Notification();
     $response = $notification->getResponse();
     $payment = $this->loadPaymentByOrderId($response->order_id);
