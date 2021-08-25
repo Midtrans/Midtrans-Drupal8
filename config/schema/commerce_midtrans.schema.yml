@@ -81,6 +81,12 @@ commerce_payment.commerce_payment_gateway.plugin.midtrans_installmentoff:
     enable_savecard:
       type: boolean
       label: 'Enable Save Card'
+    installment_term:
+      type: string
+      label: 'Installment Terms'
+    acquiring_bank:
+      type: string
+      label: 'Acquiring Bank'
     min_amount:
       type: string
       label: 'Minimal Amount'
