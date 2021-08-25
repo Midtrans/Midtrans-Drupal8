@@ -29,6 +29,10 @@ class MidtransNotification {
     $raw_notification = json_decode(file_get_contents('php://input'), true);
     $order_id = $raw_notification['order_id'];
 
+    if (empty($order_id)) {
+      return new Response('Bad Request, orderID is required', 400);
+    }
+
     //get order by order id
     $order = \Drupal\commerce_order\Entity\Order::load($order_id);
     if (!$order) {
