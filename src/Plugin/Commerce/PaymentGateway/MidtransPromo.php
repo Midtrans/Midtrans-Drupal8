@@ -213,43 +213,75 @@ class MidtransPromo extends OffsitePaymentGatewayBase {
     }
   }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function loadPaymentByOrderId($order_id) {
-        /** @var \Drupal\commerce_payment\PaymentStorage $storage */
-        $storage = $this->entityTypeManager->getStorage('commerce_payment');
-        $payment_by_order_id = $storage->loadByProperties(['remote_id' => $order_id]);
-        return reset($payment_by_order_id);
-    }
+  /**
+   * {@inheritdoc}
+   */
+  protected function loadPaymentByOrderId($order_id) {
+    /** @var \Drupal\commerce_payment\PaymentStorage $storage */
+    $storage = $this->entityTypeManager->getStorage('commerce_payment');
+    $payment_by_order_id = $storage->loadByProperties(['order_id' => $order_id]);
+    return reset($payment_by_order_id);
+  }
+
+  protected function midtransConfig() {
+    \Midtrans\Config::$serverKey =  $this->getConfiguration()['server_key'];
+    \Midtrans\Config::$isProduction = ($this->getMode() == 'production') ? TRUE : FALSE;
+  }
 
   /**
    * {@inheritdoc}
    */
   public function onReturn(OrderInterface $order, Request $request) {
-    $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
+    $this->midtransConfig();
     $payment = $this->loadPaymentByOrderId($order->id());
-    $status = $payment->getState()->value;
-    $pdf = $_GET["pdf"];
+    $response = \Midtrans\Transaction::status($payment->getRemoteId());
 
     if($payment->getState()->value != 'complete'){
-      if ($_GET["pdf"]){
+      if (isset($_GET["pdf"])) {
         if (substr($_GET["pdf"],0,4) == 'http'){
+          $pdf = $_GET["pdf"];
           $this->messenger()->addMessage(
             $this->t('Please complete your payment as instructed <a href="' . $pdf . '" target="_blank">here.</a>'));
         }
-        else{
-          $this->messenger()->addMessage($this->t('Please complete your payment'));
-        }
-      }
-      else{
-        $this->messenger()->addMessage($this->t('Thank you for your payment.'));
       }
     }
 
-    else{
-      $this->messenger()->addMessage($this->t('Thank you for your payment.'));
+    $message = '<p><strong>Here is the detail payment from Midtrans</strong><br />';
+    $message .= 'Order ID: '.$response->order_id.'<br>';
+    $message .= 'Transaction ID: '.$response->transaction_id.'<br>';
+    $message .= 'Transaction Status: '.ucwords($response->transaction_status).'<br>';
+    $message .= 'Payment Type: '.$this->detailPaymentType($response).'<br>';
+
+    $this->messenger()->addMessage($this->t($message));
+  }
+
+  protected function detailPaymentType($data) {
+    $result = '-';
+    if ($data->payment_type == 'credit_card') {
+      $result =  ucwords($data->card_type).' Card - Mask Card: '.$data->masked_card;
     }
+    else if ($data->payment_type == 'qris') {
+      $issuer = isset($data->issuer) ? ' - Issuer: '.ucwords($data->issuer) : '';
+      $result = 'QRIS - Acquirer: '.ucwords($data->acquirer).$issuer;
+    } else if ($data->payment_type == 'cstore') {
+      $result = ucwords($data->store).' - Payment Code: '.$data->payment_code;
+    }
+    else if ($data->payment_type == 'echannel') {
+      $result = 'Mandiri Bill - Bill Number: '.$data->bill_key;
+    }
+    else if ($data->payment_type == 'bank_transfer') {
+      if (isset($data->permata_va_number)){
+        $result = 'Permata VA - '.$data->permata_va_number;
+      }
+      else {
+        $result = strtoupper($data->va_numbers[0]->bank).' VA - '.$data->va_numbers[0]->va_number;
+      }
+    }
+    else {
+      $result = ucwords($data->payment_type);
+    }
+
+    return $result;
   }
 
   /**
