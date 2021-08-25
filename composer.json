@@ -1,0 +1,11 @@
+{
+    "name": "midtrans/midtrans-drupal8",
+    "description": "The official Midtrans extension for the Drupal Commerce 2",
+    "homepage": "https://midtrans.com",
+    "version": "2.0.0",
+    "type": "drupal-module",
+    "license":"MIT",
+    "require": {
+        "midtrans/midtrans-php": "^2.4"
+    }
+}
