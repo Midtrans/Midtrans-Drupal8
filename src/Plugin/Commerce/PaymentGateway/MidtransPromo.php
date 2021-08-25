@@ -301,6 +301,7 @@ class MidtransPromo extends OffsitePaymentGatewayBase {
       $order_state = $order->getState();
       $order_state->applyTransitionById('place');
       $order->unlock();
+      $order->save();
     }
 
     // change payment remote id with transaction id, also update amount if there is promo
