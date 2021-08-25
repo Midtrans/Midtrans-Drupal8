@@ -17,9 +17,9 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildConfigurationForm($form, $form_state);
     /** @var \Drupal\commerce_payment\Entity\PaymentInterface $payment */
-    $payment = $this->entity;
-    $order = $payment->getOrder();
-    $payment_gateway_plugin = $payment->getPaymentGateway()->getPlugin();
+    $create_payment = $this->entity;
+    $order = $create_payment->getOrder();
+    $payment_gateway_plugin = $create_payment->getPaymentGateway()->getPlugin();
     $gateway_mode = $payment_gateway_plugin->getMode();
     $configuration = $payment_gateway_plugin->getConfiguration();
 
@@ -32,18 +32,22 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
       $commerce_info = system_get_info('module','commerce');
     }
 
-    $snap_script_url = ($gateway_mode == 'production') ? "https://app.midtrans.com/snap/snap.js" : "https://app.sandbox.midtrans.com/snap/snap.js";
-    \Midtrans\Config::$isProduction = ($gateway_mode == 'production') ? TRUE : FALSE;
+    \Midtrans\Config::$is3ds = ($configuration['enable_3ds']) ? TRUE : FALSE;
     \Midtrans\Config::$serverKey = $configuration['server_key'];
-    \Midtrans\Config::$is3ds = ($configuration['enable_3ds'] == 1) ? TRUE : FALSE;
-    $mixpanel_key = ($gateway_mode == 'production') ? "17253088ed3a39b1e2bd2cbcfeca939a" : "9dcba9b440c831d517e8ff1beff40bd9";
+    \Midtrans\Config::$isProduction = ($gateway_mode == 'production') ? TRUE : FALSE;
+    \Midtrans\Config::$overrideNotifUrl = ($configuration['enable_override_notification']) ? $configuration['notification_url'] : FALSE;
+    \Midtrans\Config::$curlOptions[CURLOPT_HTTPHEADER][] = 'Drupal-Version: '.\Drupal::VERSION;
+    \Midtrans\Config::$curlOptions[CURLOPT_HTTPHEADER][] = 'Commerce-Version: '.$commerce_info['version'];
+    \Midtrans\Config::$curlOptions[CURLOPT_HTTPHEADER][] = 'Module-Version: '.'Midtrans Offline Installment-v'.$plugin_info['version'];
+    \Midtrans\Config::$curlOptions[CURLOPT_HTTPHEADER][] = 'PHP-Version: '.phpversion();
 
     // set remote id for payment
     $order_id = $order->id();
-    $payments = \Drupal::entityTypeManager() ->getStorage('commerce_payment') ->loadByProperties([ 'order_id' => [$order_id], ]);
-    if (!$payments){
-      $payment->setRemoteId($order_id);
-      $payment->save();
+    $get_payments = \Drupal::entityTypeManager()->getStorage('commerce_payment')->loadByProperties(['order_id' => $order_id]);
+    $get_payment = reset($get_payments);
+    if (!$get_payment) {
+      $create_payment->setRemoteId($order_id);
+      $create_payment->save();
     }
 
     $params = $this->buildTransactionParams($order, $configuration, $form);
@@ -71,6 +75,10 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
         error_log($e->getMessage());
       }
     }
+
+    $env = ($gateway_mode == 'production') ? 'app' : 'app.sandbox';
+    $snap_script_url = 'https://'. $env .'.midtrans.com/snap/snap.js';
+    $mixpanel_key = ($gateway_mode == 'production') ? "17253088ed3a39b1e2bd2cbcfeca939a" : "9dcba9b440c831d517e8ff1beff40bd9";
 
     $js_settings = [
       'data' => [
