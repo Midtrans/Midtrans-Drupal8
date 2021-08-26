@@ -28,6 +28,12 @@ commerce_payment.commerce_payment_gateway.plugin.midtrans:
     enable_override_notification:
       type: boolean
       label: 'Enable Override Notification'
+    enable_log_for_http_notification:
+      type: boolean
+      Label: 'Enable Notification Log'
+    enable_log_for_exception:
+      type: boolean
+      Label: 'Enable Throw Exception'
 
 commerce_payment.commerce_payment_gateway.plugin.midtrans_installment:
   type: commerce_payment_gateway_configuration
@@ -59,6 +65,12 @@ commerce_payment.commerce_payment_gateway.plugin.midtrans_installment:
     enable_override_notification:
       type: boolean
       label: 'Enable Override Notification'
+    enable_log_for_http_notification:
+      type: boolean
+      Label: 'Enable Notification Log'
+    enable_log_for_exception:
+      type: boolean
+      Label: 'Enable Throw Exception'
 
 commerce_payment.commerce_payment_gateway.plugin.midtrans_installmentoff:
   type: commerce_payment_gateway_configuration
@@ -99,6 +111,12 @@ commerce_payment.commerce_payment_gateway.plugin.midtrans_installmentoff:
     enable_override_notification:
       type: boolean
       label: 'Enable Override Notification'
+    enable_log_for_http_notification:
+      type: boolean
+      Label: 'Enable Notification Log'
+    enable_log_for_exception:
+      type: boolean
+      Label: 'Enable Throw Exception'
 
 commerce_payment.commerce_payment_gateway.plugin.midtrans_promo:
   type: commerce_payment_gateway_configuration
@@ -148,3 +166,9 @@ commerce_payment.commerce_payment_gateway.plugin.midtrans_promo:
     enable_override_notification:
       type: boolean
       label: 'Enable Override Notification'
+    enable_log_for_http_notification:
+      type: boolean
+      Label: 'Enable Notification Log'
+    enable_log_for_exception:
+      type: boolean
+      Label: 'Enable Throw Exception'

@@ -43,6 +43,8 @@ class MidtransInstallment extends InstallmentGatewayBase {
         'custom_field' => '',
         'enable_override_notification' => '1',
         'notification_url' => '',
+        'enable_log_for_http_notification' => '1',
+        'enable_log_for_exception' => '1',
       ] + parent::defaultConfiguration();
   }
 
@@ -126,6 +128,20 @@ class MidtransInstallment extends InstallmentGatewayBase {
       '#value' => \Drupal::request()->getSchemeAndHttpHost().base_path().'payment/notify/midtrans',
     ];
 
+    $form['enable_log_for_http_notification'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enable Notification Log'),
+      '#default_value' => $this->configuration['enable_log_for_http_notification'],
+      '#description' => $this->t('The plugins will store log in Reports > Recent log messages. The default value is Enable.<br>Sample Notification: <code>Handling received HTTP Notification: orderID 32 - bank_transfer - settlement</code>'),
+    ];
+
+    $form['enable_log_for_exception'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enable Throw Exception Log'),
+      '#default_value' => $this->configuration['enable_log_for_exception'],
+      '#description' => $this->t('The plugins will store log in Reports > Recent log messages when receive error response from Midtrans. The default value is Enable.'),
+    ];
+
     $form['midtrans_admin_module'] = [
       '#type' => 'html_tag',
       '#tag' => 'div',
@@ -159,6 +175,8 @@ class MidtransInstallment extends InstallmentGatewayBase {
       $this->configuration['custom_field'] = $values['custom_field'];
       $this->configuration['enable_override_notification'] = $values['enable_override_notification'];
       $this->configuration['notification_url'] = $values['notification_url'];
+      $this->configuration['enable_log_for_http_notification'] = $values['enable_log_for_http_notification'];
+      $this->configuration['enable_log_for_exception'] = $values['enable_log_for_exception'];
     }
   }
 
@@ -216,19 +234,22 @@ class MidtransInstallment extends InstallmentGatewayBase {
     $notification = new \Midtrans\Notification();
     $response = $notification->getResponse();
     $payment = $this->loadPaymentByOrderId($response->order_id);
+    $configuration = $payment->getPaymentGateway()->getPlugin()->getConfiguration();
     $order = $payment->getOrder();
 
     // change payment remote id with transaction id
     $payment->setRemoteId($response->transaction_id);
     $payment->save();
 
-    $message = 'Handling received HTTP Notification: orderID '.$response->order_id.' - '.$response->payment_type.' - '.$response->transaction_status;
-    \Drupal::logger('commerce_midtrans')->info($message);
+    if ($configuration['enable_log_for_http_notification']) {
+      $message = 'Handling received HTTP Notification: orderID '.$response->order_id.' - '.$response->payment_type.' - '.$response->transaction_status;
+      \Drupal::logger('commerce_midtrans')->info($message);
+    }
 
-    $installment = isset($response->installment_term) ? ' - Installment: '.$response->installment_term. ' Months' : '';
-    $payment_type = ucwords($response->card_type).' Card - Mask Card: '.$response->masked_card.$installment;
-
+    // add notif to order activity
     if (\Drupal::moduleHandler()->moduleExists('commerce_log')) {
+      $installment = isset($response->installment_term) ? ' - Installment: '.$response->installment_term. ' Months' : '';
+      $payment_type = ucwords($response->card_type).' Card - Mask Card: '.$response->masked_card.$installment;
       $notif_params = array(
         'order_id' => $response->order_id,
         'transaction_id' => $response->transaction_id,

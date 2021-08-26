@@ -63,10 +63,13 @@ class MidtransForm extends BasePaymentOffsiteForm {
         // Redirect to Midtrans SNAP PopUp page.
         $snap_token = \Midtrans\Snap::getSnapToken($params);
       }
-      catch (Exception $e) {
+      catch (\Exception $e) {
         $message = 'Unable to pay via Midtrans. Please contact the website owner to get detail, thank you.';
         \Drupal::messenger()->addWarning($message);
-        \Drupal::logger('commerce_midtrans')->error($e->getMessage());
+
+        if ($configuration['enable_log_for_exception']){
+          \Drupal::logger('commerce_midtrans')->error('Got error for orderID '.$order_id.' :: '.$e->getMessage());
+        }
         $response = new RedirectResponse($form['#cancel_url']);
         $response->send();
       }
@@ -78,10 +81,13 @@ class MidtransForm extends BasePaymentOffsiteForm {
         $response = new RedirectResponse($redirect_url);
         $response->send();
       }
-      catch (Exception $e) {
+      catch (\Exception $e) {
         $message = 'Unable to pay via Midtrans. Please contact the website owner to get detail, thank you.';
         \Drupal::messenger()->addWarning($message);
-        \Drupal::logger('commerce_midtrans')->notice($e->getMessage());
+
+        if ($configuration['enable_log_for_exception']){
+          \Drupal::logger('commerce_midtrans')->error('Got error for orderID '.$order_id.' :: '.$e->getMessage());
+        }
         $response = new RedirectResponse($form['#cancel_url']);
         $response->send();
       }

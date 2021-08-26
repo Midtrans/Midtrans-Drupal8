@@ -65,10 +65,13 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
           $order->save();
         }
       }
-      catch (Exception $e) {
+      catch (\Exception $e) {
         $message = 'Unable to pay via Midtrans. Please contact the website owner to get detail, thank you.';
         \Drupal::messenger()->addWarning($message);
-        \Drupal::logger('commerce_midtrans')->error($e->getMessage());
+
+        if ($configuration['enable_log_for_exception']){
+          \Drupal::logger('commerce_midtrans')->error('Got error for orderID '.$order_id.' :: '.$e->getMessage());
+        }
         $response = new RedirectResponse($form['#cancel_url']);
         $response->send();
       }
@@ -80,10 +83,13 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
         $response = new RedirectResponse($redirect_url);
         $response->send();
       }
-      catch (Exception $e) {
+      catch (\Exception $e) {
         $message = 'Unable to pay via Midtrans. Please contact the website owner to get detail, thank you.';
         \Drupal::messenger()->addWarning($message);
-        \Drupal::logger('commerce_midtrans')->error($e->getMessage());
+
+        if ($configuration['enable_log_for_exception']){
+          \Drupal::logger('commerce_midtrans')->error('Got error for orderID '.$order_id.' :: '.$e->getMessage());
+        }
         $response = new RedirectResponse($form['#cancel_url']);
         $response->send();
       }
