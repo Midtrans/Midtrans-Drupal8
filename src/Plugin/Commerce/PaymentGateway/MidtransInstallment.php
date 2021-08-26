@@ -131,6 +131,12 @@ class MidtransInstallment extends InstallmentGatewayBase {
       '#tag' => 'div',
       '#attributes' => ['id' => 'midtrans-admin-module-installment'],
     ];
+
+    $js_settings = [
+      'id' => '#midtrans-admin-module-installment',
+      'module' => 'midtrans_installment'
+    ];
+    $form['#attached']['drupalSettings']['commerce_midtrans'] = $js_settings;
     $form['#attached']['library'][] = 'commerce_midtrans/adminmodule';
 
     return $form;

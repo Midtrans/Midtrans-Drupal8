@@ -156,6 +156,12 @@ class MidtransOfflineInstallment extends OfflineInstallmentGatewayBase {
       '#tag' => 'div',
       '#attributes' => ['id' => 'midtrans-admin-module-installmentoff'],
     ];
+
+    $js_settings = [
+      'id' => '#midtrans-admin-module-installmentoff',
+      'module' => 'midtrans_installmentoff'
+    ];
+    $form['#attached']['drupalSettings']['commerce_midtrans'] = $js_settings;
     $form['#attached']['library'][] = 'commerce_midtrans/adminmodule';
 
     return $form;

@@ -182,6 +182,12 @@ class MidtransPromo extends OffsitePaymentGatewayBase {
       '#tag' => 'div',
       '#attributes' => ['id' => 'midtrans-admin-module-promo'],
     ];
+
+    $js_settings = [
+      'id' => '#midtrans-admin-module-promo',
+      'module' => 'midtrans_promo'
+    ];
+    $form['#attached']['drupalSettings']['commerce_midtrans'] = $js_settings;
     $form['#attached']['library'][] = 'commerce_midtrans/adminmodule';
 
     return $form;

@@ -132,6 +132,12 @@ class Midtrans extends OffsitePaymentGatewayBase{
       '#tag' => 'div',
       '#attributes' => ['id' => 'midtrans-admin-module'],
     ];
+
+    $js_settings = [
+      'id' => '#midtrans-admin-module',
+      'module' => 'midtrans'
+    ];
+    $form['#attached']['drupalSettings']['commerce_midtrans'] = $js_settings;
     $form['#attached']['library'][] = 'commerce_midtrans/adminmodule';
 
     return $form;
