@@ -37,7 +37,7 @@
 
         var payButton = document.getElementById('midtrans-checkout');
         payButton.addEventListener('click', function (e) {
-          event.preventDefault();
+          e.preventDefault();
           snap.pay(midtransSettings.data.snapToken, {
             skipOrderSummary : true,
             onSuccess: function(result){
