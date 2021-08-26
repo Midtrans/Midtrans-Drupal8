@@ -315,7 +315,7 @@ class MidtransPromo extends OffsitePaymentGatewayBase {
     $payment->setAmount($order->getTotalPrice());
     $payment->save();
 
-    $message = 'orderID '.$response->order_id.' - '.$response->payment_type.' - '.$response->transaction_status;
+    $message = 'Handling received HTTP Notification: orderID '.$response->order_id.' - '.$response->payment_type.' - '.$response->transaction_status;
     \Drupal::logger('commerce_midtrans')->info($message);
 
     if (\Drupal::moduleHandler()->moduleExists('commerce_log')) {

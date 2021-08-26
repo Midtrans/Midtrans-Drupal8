@@ -222,7 +222,7 @@ class MidtransInstallment extends InstallmentGatewayBase {
     $payment->setRemoteId($response->transaction_id);
     $payment->save();
 
-    $message = 'orderID '.$response->order_id.' - '.$response->payment_type.' - '.$response->transaction_status;
+    $message = 'Handling received HTTP Notification: orderID '.$response->order_id.' - '.$response->payment_type.' - '.$response->transaction_status;
     \Drupal::logger('commerce_midtrans')->info($message);
 
     $installment = isset($response->installment_term) ? ' - Installment: '.$response->installment_term. ' Months' : '';
