@@ -8,7 +8,7 @@ Let your Drupal Commerce 2 store integrated with Midtrans payment gateway.
 This is the official Midtrans extension for the Drupal Commerce 2 E-commerce platform.
 
 ### Version
-2.0.0
+2.0.1
 (for Drupal v8.x and Drupal v9.x)
 
 ### Requirements
@@ -20,25 +20,28 @@ The following plugin is tested under following environment:
 * [Drupal Commerce 8.x-2.xx ](http://www.drupal.org/project/commerce)
 
 #### Composer Installation
-If you are using [Composer](https://getcomposer.org), you can install via composer CLI:
+If you are using [Composer](https://getcomposer.org), you can install via composer CLI
+By default, composer.json in drupal site only add drupal repository, because this plugin store in github, you need add this require line to your `composer.json` file:
 
+```json
+"repositories": [
+    {
+        "type": "vcs",
+        "url": "https://github.com/midtrans/midtrans-drupal8"
+    }
+]
 ```
-composer require midtrans/midtrans-drupal8
-```
+run: `composer require midtrans/midtrans-drupal8`  on your terminal.
 
-**or**
-
-add this require line to your `composer.json` file:
-
+or
 ```json
 {
     "require": {
-        "midtrans/midtrans-drupal8": "2.0.0"
+        "midtrans/midtrans-drupal8": "2.0.1"
     }
 }
 ```
-
-and run `composer update` on your terminal.
+ run `composer update` on your terminal.
 
 #### Manual Instalation
 The manual installation method involves downloading our feature-rich plugin and uploading it to your webserver via your favourite FTP application.
