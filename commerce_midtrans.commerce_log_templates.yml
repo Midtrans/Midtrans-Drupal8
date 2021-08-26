@@ -1,0 +1,9 @@
+commerce_midtrans_notification:
+  category: commerce_order
+  label: 'Notification'
+  template: '<p><strong>Midtrans Notification:</strong><br />
+  Drupal Order ID: {{ order_id }}<br>
+  Midtrans Transaction ID: {{ transaction_id }}<br>
+  Transaction Status: {{ transaction_status }}<br>
+  Payment Type: {{ payment_type }}<br>
+  </p>'

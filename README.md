@@ -1,29 +1,51 @@
-Midtrans Drupal 8 Commerce Payment Gateway Module
+Midtrans Drupal 8/9 Commerce Payment Gateway Module
 =======================================================
 
-Midtrans :heart: Drupal 8! 
+Midtrans :heart: Drupal 8/9!
 Let your Drupal Commerce 2 store integrated with Midtrans payment gateway.
 
 ### Description
 This is the official Midtrans extension for the Drupal Commerce 2 E-commerce platform.
 
 ### Version
-8.x-2.00
-(for Drupal v 8.x)
+2.0.0
+(for Drupal v8.x and Drupal v9.x)
 
 ### Requirements
 The following plugin is tested under following environment:
 
 * PHP v5.6.x or greater
 * MySQL version 5.0 or greater
-* Drupal v8.x
+* Drupal v8.x or greater
 * [Drupal Commerce 8.x-2.xx ](http://www.drupal.org/project/commerce)
 
-#### Installation Process
+#### Composer Installation
+If you are using [Composer](https://getcomposer.org), you can install via composer CLI:
+
+```
+composer require midtrans/midtrans-drupal8
+```
+
+**or**
+
+add this require line to your `composer.json` file:
+
+```json
+{
+    "require": {
+        "midtrans/midtrans-drupal8": "2.0.0"
+    }
+}
+```
+
+and run `composer update` on your terminal.
+
+#### Manual Instalation
 The manual installation method involves downloading our feature-rich plugin and uploading it to your webserver via your favourite FTP application.
 
 1. Download the plugin file to your computer and unzip it, rename folder to ``commerce_midtrans``.
-2. Using an FTP program, or your hosting control panel, upload the unzipped plugin folder to your Drupal modules installation's ``[Drupal folder]/modules/contrib/`` directory. 
+2. Using an FTP program, or your hosting control panel, upload the unzipped plugin folder to your Drupal modules installation's ``[Drupal folder]/modules/contrib/`` directory.
+
 
 #### Plugin Configuration
 1. Open drupal admin page, open menu **Extend**.
@@ -44,7 +66,7 @@ The manual installation method involves downloading our feature-rich plugin and 
 #### Advanced Usage
 <details>
 <summary>Note on Customer Phone Number</summary>
-  
+
 ##### Note on Customer Phone Number
 Unfortunately Drupal Commerce by default doesn't have `phone number` as customer data <sup>\[1\]</sup>, so there will be no `phone` data passed to Midtrans side.
 
@@ -66,7 +88,7 @@ But you will need to figure out on your own, how to programmatically retrieve cu
 You can also add more custom Snap API payload to add more data related to the transaction. Learn more on the API payload [on Snap API docs](http://snap-docs.midtrans.com)
 
 > <sup>\[1\]</sup> At this time of writing, based on `[DrupalCommerceFolder]/modules/contrib/address/src/Plugin/Field/FieldType/AddressItem.php`, the class doesn't have any phone attribute by default.
-> 
+>
 > And no explanation of it on the [Drupal Commerce PG module development guide](https://docs.drupalcommerce.org/commerce2/developer-guide/payments/create-payment-gateway/on-site-gateways/stored-payment-methods)
 
 </details>

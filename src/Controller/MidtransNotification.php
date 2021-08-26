@@ -7,19 +7,11 @@ use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\SupportsNotifications
 use Drupal\Core\Access\AccessException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Drupal\commerce_order\Entity\OrderInterface;
-use Drupal\commerce_payment;
 
-
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
-use Drupal\Core\Url;
-use Drupal\Core\Controller\ControllerBase;
 /**
  * Provides the endpoint for payment notifications.
  */
 class MidtransNotification {
-
   /**
    * Provides the "notify" page.
    *
@@ -36,9 +28,18 @@ class MidtransNotification {
   public function notifyPage(Request $request) {
     $raw_notification = json_decode(file_get_contents('php://input'), true);
     $order_id = $raw_notification['order_id'];
-    
+
+    if (empty($order_id)) {
+      return new Response('Bad Request, orderID is required', 400);
+    }
+
     //get order by order id
     $order = \Drupal\commerce_order\Entity\Order::load($order_id);
+    if (!$order) {
+      \Drupal::logger('commerce_midtrans')->error('orderID : '.$order_id. ' not found');
+      return new Response('Bad Request', 400);
+    }
+
     $payment_gateway = $order->get('payment_gateway')->first()->entity;
     $payment_gateway_plugin = $payment_gateway->getPlugin();
 
@@ -53,5 +54,4 @@ class MidtransNotification {
 
     return $response;
   }
-
 }

@@ -3,13 +3,13 @@ commerce_payment.commerce_payment_gateway.plugin.midtrans:
   mapping:
     merchant_id:
       type: string
-      label: 'Merchant Id'
+      label: 'Merchant ID'
     server_key:
       type: string
-      label: 'Server key'
+      label: 'Server Key'
     client_key:
       type: string
-      label: 'Client key'
+      label: 'Client Key'
     enable_3ds:
       type: boolean
       label: 'Enable 3DS'
@@ -25,19 +25,28 @@ commerce_payment.commerce_payment_gateway.plugin.midtrans:
     custom_field:
       type: string
       label: 'Custom Field'
+    enable_override_notification:
+      type: boolean
+      label: 'Enable Override Notification'
+    enable_log_for_http_notification:
+      type: boolean
+      Label: 'Enable Notification Log'
+    enable_log_for_exception:
+      type: boolean
+      Label: 'Enable Throw Exception'
 
 commerce_payment.commerce_payment_gateway.plugin.midtrans_installment:
   type: commerce_payment_gateway_configuration
   mapping:
     merchant_id:
       type: string
-      label: 'Merchant Id'
+      label: 'Merchant ID'
     server_key:
       type: string
-      label: 'Server key'
+      label: 'Server Key'
     client_key:
       type: string
-      label: 'Client key'
+      label: 'Client Key'
     enable_3ds:
       type: boolean
       label: 'Enable 3DS'
@@ -53,19 +62,28 @@ commerce_payment.commerce_payment_gateway.plugin.midtrans_installment:
     custom_field:
       type: string
       label: 'Custom Field'
+    enable_override_notification:
+      type: boolean
+      label: 'Enable Override Notification'
+    enable_log_for_http_notification:
+      type: boolean
+      Label: 'Enable Notification Log'
+    enable_log_for_exception:
+      type: boolean
+      Label: 'Enable Throw Exception'
 
 commerce_payment.commerce_payment_gateway.plugin.midtrans_installmentoff:
   type: commerce_payment_gateway_configuration
   mapping:
     merchant_id:
       type: string
-      label: 'Merchant Id'
+      label: 'Merchant ID'
     server_key:
       type: string
-      label: 'Server key'
+      label: 'Server Key'
     client_key:
       type: string
-      label: 'Client key'
+      label: 'Client Key'
     enable_3ds:
       type: boolean
       label: 'Enable 3DS'
@@ -75,28 +93,43 @@ commerce_payment.commerce_payment_gateway.plugin.midtrans_installmentoff:
     enable_savecard:
       type: boolean
       label: 'Enable Save Card'
+    installment_term:
+      type: string
+      label: 'Installment Terms'
+    acquiring_bank:
+      type: string
+      label: 'Acquiring Bank'
     min_amount:
       type: string
       label: 'Minimal Amount'
     bin_number:
       type: string
-      label: 'CC Bins'  
+      label: 'CC Bins'
     custom_field:
       type: string
       label: 'Custom Field'
-      
+    enable_override_notification:
+      type: boolean
+      label: 'Enable Override Notification'
+    enable_log_for_http_notification:
+      type: boolean
+      Label: 'Enable Notification Log'
+    enable_log_for_exception:
+      type: boolean
+      Label: 'Enable Throw Exception'
+
 commerce_payment.commerce_payment_gateway.plugin.midtrans_promo:
   type: commerce_payment_gateway_configuration
   mapping:
     merchant_id:
       type: string
-      label: 'Merchant Id'
+      label: 'Merchant ID'
     server_key:
       type: string
-      label: 'Server key'
+      label: 'Server Key'
     client_key:
       type: string
-      label: 'Client key'
+      label: 'Client Key'
     enable_3ds:
       type: boolean
       label: 'Enable 3DS'
@@ -108,7 +141,7 @@ commerce_payment.commerce_payment_gateway.plugin.midtrans_promo:
       label: 'Enable Save Card'
     method_enabled:
       type: string
-      label: 'Enable Payment'   
+      label: 'Enable Payment'
     min_amount:
       type: string
       label: 'Minimal Amount'
@@ -123,10 +156,19 @@ commerce_payment.commerce_payment_gateway.plugin.midtrans_promo:
       label: 'Discount Amount'
     max_discount:
       type: number
-      label: 'Maximun Discount'  
+      label: 'Maximun Discount'
     custom_expiry:
       type: string
-      label: 'Custom Expiry'       
+      label: 'Custom Expiry'
     custom_field:
       type: string
       label: 'Custom Field'
+    enable_override_notification:
+      type: boolean
+      label: 'Enable Override Notification'
+    enable_log_for_http_notification:
+      type: boolean
+      Label: 'Enable Notification Log'
+    enable_log_for_exception:
+      type: boolean
+      Label: 'Enable Throw Exception'
