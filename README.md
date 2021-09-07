@@ -26,7 +26,7 @@ run: `composer require drupal/midtrans_commerce`  on your terminal.
 #### Manual Instalation
 The manual installation method involves downloading our feature-rich plugin and uploading it to your webserver via your favourite FTP application.
 
-1. Download the plugin file to your computer and unzip it, rename folder to ``commerce_midtrans``.
+1. Download the plugin file to your computer and unzip it, rename folder to ``midtrans_commerce``.
 2. Using an FTP program, or your hosting control panel, upload the unzipped plugin folder to your Drupal modules installation's ``[Drupal folder]/modules/contrib/`` directory.
 
 

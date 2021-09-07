@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\commerce_midtrans\Plugin\Commerce\PaymentGateway;
+namespace Drupal\midtrans_commerce\Plugin\Commerce\PaymentGateway;
 
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_payment\Exception\PaymentGatewayException;
@@ -19,7 +19,7 @@ use Drupal\commerce_payment;
  *   label = "Midtrans Promo Payment",
  *   display_label = "Promo Payment via Midtrans",
  *    forms = {
- *     "offsite-payment" = "Drupal\commerce_midtrans\PluginForm\MidtransPromoForm",
+ *     "offsite-payment" = "Drupal\midtrans_commerce\PluginForm\MidtransPromoForm",
  *   },
 *   modes= {
  *     "sandbox" = "Sandbox",
@@ -203,8 +203,8 @@ class MidtransPromo extends OffsitePaymentGatewayBase {
       'id' => '#midtrans-admin-module-promo',
       'module' => 'midtrans_promo'
     ];
-    $form['#attached']['drupalSettings']['commerce_midtrans'] = $js_settings;
-    $form['#attached']['library'][] = 'commerce_midtrans/adminmodule';
+    $form['#attached']['drupalSettings']['midtrans_commerce'] = $js_settings;
+    $form['#attached']['library'][] = 'midtrans_commerce/adminmodule';
 
     return $form;
   }
@@ -336,7 +336,7 @@ class MidtransPromo extends OffsitePaymentGatewayBase {
 
     if ($configuration['enable_log_for_http_notification']) {
       $message = 'Handling received HTTP Notification: orderID '.$response->order_id.' - '.$response->payment_type.' - '.$response->transaction_status;
-      \Drupal::logger('commerce_midtrans')->info($message);
+      \Drupal::logger('midtrans_commerce')->info($message);
     }
 
     // add notif to order activity
@@ -348,7 +348,7 @@ class MidtransPromo extends OffsitePaymentGatewayBase {
         'payment_type' => $this->detailPaymentType($response)
       );
       $order_activity = \Drupal::entityTypeManager()->getStorage('commerce_log');
-      $order_activity->generate($order, 'commerce_midtrans_notification', $notif_params)->save();
+      $order_activity->generate($order, 'midtrans_commerce_notification', $notif_params)->save();
     }
 
     if ($response->transaction_status == 'capture'){

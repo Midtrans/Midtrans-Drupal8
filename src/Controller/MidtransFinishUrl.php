@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\commerce_midtrans\Controller;
+namespace Drupal\midtrans_commerce\Controller;
 
 use Drupal\commerce_payment\Entity\PaymentGatewayInterface;
 use Drupal\Core\Controller\ControllerBase;

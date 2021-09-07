@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\commerce_midtrans\Controller;
+namespace Drupal\midtrans_commerce\Controller;
 
 use Drupal\commerce_payment\Entity\PaymentGatewayInterface;
 use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\SupportsNotificationsInterface;
@@ -36,7 +36,7 @@ class MidtransNotification {
     //get order by order id
     $order = \Drupal\commerce_order\Entity\Order::load($order_id);
     if (!$order) {
-      \Drupal::logger('commerce_midtrans')->error('orderID : '.$order_id. ' not found');
+      \Drupal::logger('midtrans_commerce')->error('orderID : '.$order_id. ' not found');
       return new Response('Bad Request', 400);
     }
 

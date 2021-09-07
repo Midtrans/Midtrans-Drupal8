@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\commerce_midtrans\PluginForm;
+namespace Drupal\midtrans_commerce\PluginForm;
 
 use Drupal\commerce_payment\PluginForm\PaymentOffsiteForm as BasePaymentOffsiteInstallmentOfflineForm;
 use Drupal\Core\Form\FormStateInterface;
@@ -25,11 +25,11 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
     $snap_token = FALSE;
 
     if (version_compare(\Drupal::VERSION, "9.0.0", ">=")) {
-      $plugin_info = \Drupal::service('extension.list.module')->getExtensionInfo('commerce_midtrans');
+      $plugin_info = \Drupal::service('extension.list.module')->getExtensionInfo('midtrans_commerce');
       $commerce_info = \Drupal::service('extension.list.module')->getExtensionInfo('commerce');
     }
     else {
-      $plugin_info = system_get_info('module','commerce_midtrans');
+      $plugin_info = system_get_info('module','midtrans_commerce');
       $commerce_info = system_get_info('module','commerce');
     }
 
@@ -71,7 +71,7 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
         \Drupal::messenger()->addWarning($message);
 
         if ($configuration['enable_log_for_exception']){
-          \Drupal::logger('commerce_midtrans')->error('Got error for orderID '.$order_id.' :: '.$e->getMessage());
+          \Drupal::logger('midtrans_commerce')->error('Got error for orderID '.$order_id.' :: '.$e->getMessage());
         }
         $response = new RedirectResponse($form['#cancel_url']);
         $response->send();
@@ -89,7 +89,7 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
         \Drupal::messenger()->addWarning($message);
 
         if ($configuration['enable_log_for_exception']){
-          \Drupal::logger('commerce_midtrans')->error('Got error for orderID '.$order_id.' :: '.$e->getMessage());
+          \Drupal::logger('midtrans_commerce')->error('Got error for orderID '.$order_id.' :: '.$e->getMessage());
         }
         $response = new RedirectResponse($form['#cancel_url']);
         $response->send();
@@ -128,8 +128,8 @@ class MidtransOfflineInstallmentForm extends BasePaymentOffsiteInstallmentOfflin
       '#url' => Url::fromUri($form['#cancel_url']),
     ];
 
-    $form['#attached']['drupalSettings']['commerce_midtrans'] = $js_settings;
-    $form['#attached']['library'][] = 'commerce_midtrans/checkout';
+    $form['#attached']['drupalSettings']['midtrans_commerce'] = $js_settings;
+    $form['#attached']['library'][] = 'midtrans_commerce/checkout';
 
     return $form;
   }
