@@ -26,7 +26,7 @@ class MidtransNotification {
    *   The response.
    */
   public function notifyPage(Request $request) {
-    $raw_notification = json_decode(file_get_contents('php://input'), true);
+    $raw_notification = json_decode(file_get_contents('php://input'), TRUE);
     $order_id = $raw_notification['order_id'];
 
     if (empty($order_id)) {

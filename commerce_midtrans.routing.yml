@@ -4,7 +4,10 @@ commerce_payment_midtrans.notify:
     _controller: '\Drupal\commerce_midtrans\Controller\MidtransNotification::notifyPage'
   requirements:
     _access: 'TRUE'
-  # options:
-  #   parameters:
-  #     commerce_payment_gateway:
-  #       type: entity:commerce_payment_gateway
+
+commerce_payment_midtrans.thankyoupage:
+  path: '/payment/finish/midtrans'
+  defaults:
+    _controller: '\Drupal\commerce_midtrans\Controller\MidtransFinishUrl::finishPage'
+  requirements:
+    _access: 'TRUE'
