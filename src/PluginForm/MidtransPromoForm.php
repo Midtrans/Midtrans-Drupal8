@@ -25,6 +25,7 @@ class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
     $payment_gateway_plugin = $create_payment->getPaymentGateway()->getPlugin();
     $gateway_mode = $payment_gateway_plugin->getMode();
     $configuration = $payment_gateway_plugin->getConfiguration();
+    $snap_token = FALSE;
 
     if (version_compare(\Drupal::VERSION, "9.0.0", ">=")) {
       $plugin_info = \Drupal::service('extension.list.module')->getExtensionInfo('commerce_midtrans');
