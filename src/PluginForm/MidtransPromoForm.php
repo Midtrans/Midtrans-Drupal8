@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\commerce_order\Adjustment;
 use Drupal\commerce_price\Price;
 use Drupal\commerce_order\Entity\OrderInterface;
+require_once(dirname(dirname(__DIR__)) . '/lib/midtrans/Midtrans.php');
 
 class MidtransPromoForm extends BasePaymentPromoOffsiteForm {
 

@@ -6,6 +6,7 @@ use Drupal\commerce_payment\Entity\PaymentGatewayInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+require_once(dirname(dirname(__DIR__)) . '/lib/midtrans/Midtrans.php');
 
 /**
  * Provides the finish url for midtrans payment gateway.

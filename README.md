@@ -20,9 +20,15 @@ The following module is tested under following environment:
 * [Drupal v8.x or greater](https://www.drupal.org/project/drupal)
 * [Drupal Commerce 8.x-2.xx ](http://www.drupal.org/project/commerce)
 
-#### Installation
-Since the module requires an external library (Midtrans PHP Library), Composer must be used.
-run: `composer require drupal/midtrans_commerce`
+#### Composer Installation
+If you are using [Composer](https://getcomposer.org), you can install via composer CLI
+run: `composer require drupal/midtrans_commerce`  on your terminal.
+
+#### Manual Instalation
+The manual installation method involves downloading our feature-rich plugin and uploading it to your webserver via your favourite FTP application.
+
+1. Download the plugin file to your computer and unzip it, rename folder to ``midtrans_commerce``.
+2. Using an FTP program, or your hosting control panel, upload the unzipped plugin folder to your Drupal modules installation's ``[Drupal folder]/modules/contrib/`` directory.
 
 #### Plugin Configuration
 1. Open drupal admin page, open menu **Extend**.

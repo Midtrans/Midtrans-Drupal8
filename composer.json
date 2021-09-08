@@ -3,8 +3,5 @@
     "description": "The official Midtrans extension for the Drupal Commerce 2",
     "homepage": "http://drupal.org/project/midtrans_commerce",
     "license": "GPL-2.0+",
-    "type": "drupal-module",
-    "require": {
-        "midtrans/midtrans-php": "^2.4.2"
-    }
+    "type": "drupal-module"
 }

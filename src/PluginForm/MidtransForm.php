@@ -8,6 +8,7 @@ use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+require_once(dirname(dirname(__DIR__)) . '/lib/midtrans/Midtrans.php');
 
 class MidtransForm extends BasePaymentOffsiteForm {
   /**
