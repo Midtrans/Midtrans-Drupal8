@@ -1,11 +1,7 @@
 {
-    "name": "midtrans/midtrans-drupal8",
+    "name": "drupal/midtrans_commerce",
     "description": "The official Midtrans extension for the Drupal Commerce 2",
-    "homepage": "https://midtrans.com",
-    "version": "2.0.1",
-    "type": "drupal-module",
-    "license":"MIT",
-    "require": {
-        "midtrans/midtrans-php": "^2.4"
-    }
+    "homepage": "http://drupal.org/project/midtrans_commerce",
+    "license": "GPL-2.0+",
+    "type": "drupal-module"
 }

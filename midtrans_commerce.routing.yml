@@ -1,0 +1,13 @@
+commerce_payment_midtrans.notify:
+  path: '/payment/notify/midtrans'
+  defaults:
+    _controller: '\Drupal\midtrans_commerce\Controller\MidtransNotification::notifyPage'
+  requirements:
+    _access: 'TRUE'
+
+commerce_payment_midtrans.thankyoupage:
+  path: '/payment/finish/midtrans'
+  defaults:
+    _controller: '\Drupal\midtrans_commerce\Controller\MidtransFinishUrl::finishPage'
+  requirements:
+    _access: 'TRUE'

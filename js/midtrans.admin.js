@@ -6,7 +6,7 @@
 
   Drupal.behaviors.initMidtransModule = {
     attach: function (context) {
-      var midtransSettings = drupalSettings.commerce_midtrans;
+      var midtransSettings = drupalSettings.midtrans_commerce;
       var midtransModule = $(context).find(midtransSettings.id);
       if (midtransModule.length > 0) {
         updateEnvMode(midtransSettings.module);

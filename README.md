@@ -4,51 +4,31 @@ Midtrans Drupal 8/9 Commerce Payment Gateway Module
 Midtrans :heart: Drupal 8/9!
 Let your Drupal Commerce 2 store integrated with Midtrans payment gateway.
 
-### Description
+#### Description
 This is the official Midtrans extension for the Drupal Commerce 2 E-commerce platform.
 
-### Version
-2.0.1
+#### Version
+2.1.0
 (for Drupal v8.x and Drupal v9.x)
 
-### Requirements
-The following plugin is tested under following environment:
+#### Requirements
+The following module is tested under following environment:
 
 * PHP v5.6.x or greater
 * MySQL version 5.0 or greater
-* Drupal v8.x or greater
+* [Midtrans PHP Library](https://github.com/Midtrans/midtrans-php)
+* [Drupal v8.x or greater](https://www.drupal.org/project/drupal)
 * [Drupal Commerce 8.x-2.xx ](http://www.drupal.org/project/commerce)
 
 #### Composer Installation
 If you are using [Composer](https://getcomposer.org), you can install via composer CLI
-By default, composer.json in drupal site only add drupal repository, because this plugin store in github, you need add this require line to your `composer.json` file:
-
-```json
-"repositories": [
-    {
-        "type": "vcs",
-        "url": "https://github.com/midtrans/midtrans-drupal8"
-    }
-]
-```
-run: `composer require midtrans/midtrans-drupal8`  on your terminal.
-
-or
-```json
-{
-    "require": {
-        "midtrans/midtrans-drupal8": "2.0.1"
-    }
-}
-```
- run `composer update` on your terminal.
+run: `composer require drupal/midtrans_commerce`  on your terminal.
 
 #### Manual Instalation
 The manual installation method involves downloading our feature-rich plugin and uploading it to your webserver via your favourite FTP application.
 
-1. Download the plugin file to your computer and unzip it, rename folder to ``commerce_midtrans``.
+1. Download the plugin file to your computer and unzip it, rename folder to ``midtrans_commerce``.
 2. Using an FTP program, or your hosting control panel, upload the unzipped plugin folder to your Drupal modules installation's ``[Drupal folder]/modules/contrib/`` directory.
-
 
 #### Plugin Configuration
 1. Open drupal admin page, open menu **Extend**.
@@ -64,7 +44,7 @@ The manual installation method involves downloading our feature-rich plugin and 
 #### Midtrans Map Configuration
 1. Go to **Settings > Configuration**.
 2. Insert ``http://[your web]/payment/notify/midtrans`` as your Payment Notification URL in your MAP.
-3. Insert ``http://[your web]`` link as Finish/Unfinish/Error Redirect URL in your MAP configuration.
+3. Insert ``http://[your web]/payment/finish/midtrans`` link as Finish/Unfinish/Error Redirect URL in your MAP configuration.
 
 #### Advanced Usage
 <details>

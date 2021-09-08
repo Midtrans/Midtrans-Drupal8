@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\commerce_midtrans\PluginForm;
+namespace Drupal\midtrans_commerce\PluginForm;
 
 use Drupal\commerce_payment\PluginForm\PaymentOffsiteForm as BasePaymentOffsiteForm;
 use Drupal\Core\Form\FormStateInterface;
@@ -8,6 +8,7 @@ use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+require_once(dirname(dirname(__DIR__)) . '/lib/midtrans/Midtrans.php');
 
 class MidtransForm extends BasePaymentOffsiteForm {
   /**
@@ -21,13 +22,14 @@ class MidtransForm extends BasePaymentOffsiteForm {
     $payment_gateway_plugin = $create_payment->getPaymentGateway()->getPlugin();
     $gateway_mode = $payment_gateway_plugin->getMode();
     $configuration = $payment_gateway_plugin->getConfiguration();
+    $snap_token = FALSE;
 
     if (version_compare(\Drupal::VERSION, "9.0.0", ">=")) {
-      $plugin_info = \Drupal::service('extension.list.module')->getExtensionInfo('commerce_midtrans');
+      $plugin_info = \Drupal::service('extension.list.module')->getExtensionInfo('midtrans_commerce');
       $commerce_info = \Drupal::service('extension.list.module')->getExtensionInfo('commerce');
     }
     else {
-      $plugin_info = system_get_info('module','commerce_midtrans');
+      $plugin_info = system_get_info('module','midtrans_commerce');
       $commerce_info = system_get_info('module','commerce');
     }
 
@@ -68,7 +70,7 @@ class MidtransForm extends BasePaymentOffsiteForm {
         \Drupal::messenger()->addWarning($message);
 
         if ($configuration['enable_log_for_exception']){
-          \Drupal::logger('commerce_midtrans')->error('Got error for orderID '.$order_id.' :: '.$e->getMessage());
+          \Drupal::logger('midtrans_commerce')->error('Got error for orderID '.$order_id.' :: '.$e->getMessage());
         }
         $response = new RedirectResponse($form['#cancel_url']);
         $response->send();
@@ -86,7 +88,7 @@ class MidtransForm extends BasePaymentOffsiteForm {
         \Drupal::messenger()->addWarning($message);
 
         if ($configuration['enable_log_for_exception']){
-          \Drupal::logger('commerce_midtrans')->error('Got error for orderID '.$order_id.' :: '.$e->getMessage());
+          \Drupal::logger('midtrans_commerce')->error('Got error for orderID '.$order_id.' :: '.$e->getMessage());
         }
         $response = new RedirectResponse($form['#cancel_url']);
         $response->send();
@@ -125,8 +127,8 @@ class MidtransForm extends BasePaymentOffsiteForm {
       '#url' => Url::fromUri($form['#cancel_url']),
     ];
 
-    $form['#attached']['drupalSettings']['commerce_midtrans'] = $js_settings;
-    $form['#attached']['library'][] = 'commerce_midtrans/checkout';
+    $form['#attached']['drupalSettings']['midtrans_commerce'] = $js_settings;
+    $form['#attached']['library'][] = 'midtrans_commerce/checkout';
 
     return $form;
   }
