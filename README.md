@@ -5,7 +5,8 @@ Midtrans :heart: Drupal 8/9!
 Let your Drupal Commerce 2 store integrated with Midtrans payment gateway.
 
 #### Description
-This is the official Midtrans extension for the Drupal Commerce 2 E-commerce platform.
+This is the official Midtrans module for the Drupal Commerce 2 E-commerce platform.
+Also Available on [Drupal Project Module](https://www.drupal.org/project/midtrans_commerce)
 
 #### Version
 2.1.0
@@ -16,18 +17,19 @@ The following module is tested under following environment:
 
 * PHP v5.6.x or greater
 * MySQL version 5.0 or greater
-* [Midtrans PHP Library](https://github.com/Midtrans/midtrans-php)
 * [Drupal v8.x or greater](https://www.drupal.org/project/drupal)
 * [Drupal Commerce 8.x-2.xx ](http://www.drupal.org/project/commerce)
 
 #### Composer Installation
 If you are using [Composer](https://getcomposer.org), you can install via composer CLI
-run: `composer require drupal/midtrans_commerce`  on your terminal.
+1. Open terminal
+2. Move to your drupal site folder: `cd /[drupal site folder]/`
+2. Run: `composer require drupal/midtrans_commerce`
 
 #### Manual Instalation
 The manual installation method involves downloading our feature-rich plugin and uploading it to your webserver via your favourite FTP application.
 
-1. Download the plugin file to your computer and unzip it, rename folder to ``midtrans_commerce``.
+1. [Download](https://github.com/midtrans/midtrans-drupal8/archive/master.zip) the plugin file to your computer and unzip it, rename folder to ``midtrans_commerce``.
 2. Using an FTP program, or your hosting control panel, upload the unzipped plugin folder to your Drupal modules installation's ``[Drupal folder]/modules/contrib/`` directory.
 
 #### Plugin Configuration
@@ -56,7 +58,7 @@ Unfortunately Drupal Commerce by default doesn't have `phone number` as customer
 If you have modified your Drupal Commerce site to have phone number input field, you may want to customize/edit this payment module to also send `phone` data to Midtrans side.
 
 You can do so by editing these line of codes in this file `/src/PluginForm/MidtransForm.php`:
-- https://github.com/Midtrans/Midtrans-Drupal8/blob/3b22e9d5c060db514d9f33df75173d197bc97492/src/PluginForm/MidtransForm.php#L72-L81
+- https://github.com/Midtrans/Midtrans-Drupal8/blob/12c1e4b06f1adebc8bf8af6b7e531c8d7cfde24f/src/PluginForm/MidtransForm.php#L173-L181
 
 You can uncomment this line:
 ```php
