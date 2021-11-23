@@ -8,6 +8,10 @@ Let your Drupal Commerce 2 store integrated with Midtrans payment gateway.
 This is the official Midtrans module for the Drupal Commerce 2 E-commerce platform.
 Also Available on [Drupal Project Module](https://www.drupal.org/project/midtrans_commerce)
 
+#### Live Demo
+Want to see Midtrans Magento payment plugins in action? We have some demo web-stores for Magento that you can use to try the payment journey directly, click the link below.
+* [Midtrans CMS Demo Store](https://docs.midtrans.com/en/snap/with-plugins?id=midtrans-payment-plugin-live-demonstration)
+
 #### Version
 2.1.0
 (for Drupal v8.x and Drupal v9.x)
@@ -79,6 +83,7 @@ You can also add more custom Snap API payload to add more data related to the tr
 </details>
 
 #### Get help
+* * Please follow [this step by step guide](https://docs.midtrans.com/en/snap/with-plugins?id=plugin-configuration) for complete configuration. If you have any feedback or request, please [do let us know here](https://docs.midtrans.com/en/snap/with-plugins?id=feedback-and-request).
 * [Midtrans sandbox login](https://dashboard.sandbox.midtrans.com)
 * [Midtrans production login](https://dashboard.midtrans.com)
 * [Midtrans registration](https://account.midtrans.com/register)
