@@ -9,7 +9,7 @@ This is the official Midtrans module for the Drupal Commerce 2 E-commerce platfo
 Also Available on [Drupal Project Module](https://www.drupal.org/project/midtrans_commerce)
 
 #### Live Demo
-Want to see Midtrans Drupal payment plugins in action? We have some demo web-stores for Magento that you can use to try the payment journey directly, click the link below.
+Want to see Midtrans Drupal payment plugins in action? We have some demo web-stores for Drupal that you can use to try the payment journey directly, click the link below.
 * [Midtrans CMS Demo Store](https://docs.midtrans.com/en/snap/with-plugins?id=midtrans-payment-plugin-live-demonstration)
 
 #### Version
